@@ -117,7 +117,8 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
             else if( wave>577 && wave<=597) co = Color.YELLOW;
             else if( wave>492 && wave<=577) co = Color.GREEN;
             else if( wave>455 && wave<=492) co = Color.cyan;
-            else if( wave<=455) co = Color.BLUE;            
+            else if( wave>350 && wave<=455) co = Color.BLUE;            
+            else if( wave<=350) co = Color.BLACK;            
             return co;
         }
         public void paintComponent(Graphics g)
