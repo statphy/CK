@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Graphics;
 import java.awt.Color;
+import java.util.ArrayList;
 //import javax.swing.*;
 /**
  *
@@ -16,7 +17,8 @@ import java.awt.Color;
  */
 public class YoungDoubleSlit extends javax.swing.JApplet {
     int wavelength, slit_width, slit_distance;   
-    
+    javax.swing.Timer timer ;
+    boolean isTimerOn;
     
     
     /**
@@ -48,7 +50,7 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
             java.util.logging.Logger.getLogger(YoungDoubleSlit.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        wavelength =0;
+        wavelength =300;
         slit_width = 0;
         slit_distance= 0;        
         /* Create and display the applet */
@@ -57,8 +59,9 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
                 public void run() {
                     initComponents();
                     System.out.println("Start Timer!!");
-                    javax.swing.Timer timer = new javax.swing.Timer(100,new aListener());
-                    timer.start();
+                    timer = new javax.swing.Timer(100,new aListener());
+                    isTimerOn = false;
+                    //start();
                 }                
             });
         } catch (Exception ex) {
@@ -68,10 +71,15 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
         
         //javax.swing.Timer timer = new javax.swing.Timer(1000, this);        
     }
-    
+    public void start()
+    {
+        timer.start();
+        isTimerOn = true;
+    }
     public void stop()
     {
-        
+        timer.stop();
+        isTimerOn = false;
     }
     public class aListener implements ActionListener 
     {
@@ -83,38 +91,82 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
     };
     
     public class UpperViewPane extends javax.swing.JPanel{                
-        private int radius;
+        ArrayList<Integer> radius    = new ArrayList<Integer>();        
+        ArrayList<Integer> wavelength_array = new ArrayList<Integer>();        
+        int call;
+        //int current_wavelength;
+        boolean single_slit;
+        boolean double_slit;
         UpperViewPane(){
             super();
-            radius = 0 ;
+            radius.add(0);
+            call = 0;
+            wavelength_array.add(wavelength);
+            //current_wavelength = 300;
+            
+        }
+        public void newWave()
+        {
+            radius.add(0);
+            wavelength_array.add(wavelength);
+        }
+        public Color changeColor(int wave){
+            Color co = Color.BLACK;
+            if (wave>622 && wave<=780) co = Color.RED;
+            else if( wave>597 && wave<=622) co = Color.ORANGE;
+            else if( wave>577 && wave<=597) co = Color.YELLOW;
+            else if( wave>492 && wave<=577) co = Color.GREEN;
+            else if( wave>455 && wave<=492) co = Color.cyan;
+            else if( wave<=455) co = Color.BLUE;            
+            return co;
         }
         public void paintComponent(Graphics g)
         {   
+            int size = radius.size();
+            call= call+1;
+            if ( call%(wavelength/100)==0 ) newWave();
             final int STEP = 5;
             super.paintComponent(g);
-            g.setColor(Color.blue);
-            radius = radius+STEP;
-            g.drawOval(100-radius/2,125-radius/2,radius,radius);
-            System.out.format("%d %d\n",radius, wavelength);            
+            g.setColor(Color.black);            
+            g.drawRect(300,0,50,120);
+            g.drawRect(300,this.getHeight()-120,50,120);
+            for(int i=0 ; i< size ; i++){
+                g.setColor(changeColor(wavelength_array.get(i)));                            
+                radius.set(i,radius.get(i)+STEP);            
+                g.drawOval(100-radius.get(i)/2,125-radius.get(i)/2,radius.get(i),radius.get(i));                
+            }
+            g.clearRect(351, 0, this.getWidth(),this.getHeight());
+            System.out.format("%d %d\n",radius.get(0), wavelength );            
+        }
+        public void restart(){
+            radius.clear();
+            wavelength_array.clear();
+            radius.add(0);
+            wavelength_array.add(wavelength);
+            call=0;
         }
     }
     public class ResultViewPane extends javax.swing.JPanel{
-        private int radius;
+        int formula;
         ResultViewPane(){
             super();
-            radius = 0;
+            formula=0;
         }
-        public void paintComponent(Graphics g)
+        public void paintComponent(Graphics g2)
         {
-            /**
-            final int STEP = 5;
-            super.paintComponent(g);
-            g.setColor(Color.blue);
-            radius = radius+STEP;
-            g.drawOval(100-radius/2,125-radius/2,radius,radius);
-            System.out.format("%d %d\n",radius, wavelength);
-            */
+            super.paintComponent(g2);
+            int height = this.getHeight();
+            int width = this.getWidth();
+            
+            g2.drawLine(0,height/5*4, width, (int)(height*0.8));
+            
         }
+        /**
+        public void repaint()
+        {
+            
+        }
+        */        
     }
     /**
      * This method is called from within the init() method to initialize the
@@ -180,6 +232,12 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
         });
 
         jLabel3.setText("빛의 파장(nm)");
+
+        theWaveLength.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                theWaveLengthStateChanged(evt);
+            }
+        });
 
         theButtonGroup.add(theRadioButton1);
         theRadioButton1.setText("영의 이중슬릿");
@@ -376,15 +434,11 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jInternalFrame1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jInternalFrame1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jInternalFrame1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jInternalFrame1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         bindingGroup.bind();
@@ -392,6 +446,8 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        if ( isTimerOn ) stop();
+        else start();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void theEndButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_theEndButtonActionPerformed
@@ -426,6 +482,10 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
         //System.out.println("Source : "+evt.getSource());
         wavelength = (int) theWaveLength.getValue();
     }//GEN-LAST:event_theWaveLengthSliderStateChanged
+
+    private void theWaveLengthStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_theWaveLengthStateChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_theWaveLengthStateChanged
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
