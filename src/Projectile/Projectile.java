@@ -7,18 +7,34 @@ package Projectile;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Ellipse2D;
 
 /**
  *
  * @author Hyun-Myung Chun
  */
+
+class Particle{
+    
+    double mass;
+    double positionX;
+    double positionY;
+    double velocityX;
+    double velocityY;
+    double speed = Math.sqrt(velocityX*velocityX + velocityY*velocityY);
+    
+}
+
 public class Projectile extends javax.swing.JApplet {
 
-    int massOfParticle;
-    int initialAngle;
-    int initialSpeed;
+    double massOfParticle;
+    double initialAngle;
+    double initialSpeed;
+    
+    double GRAVITATIONAL_CONSTANT=9.8;
     /**
      * Initializes the applet Projectile
      */
@@ -64,33 +80,58 @@ public class Projectile extends javax.swing.JApplet {
        
         public void actionPerformed(ActionEvent e) {
             System.out.println("On Timer!!");
-            mainDisplay.removeAll();
-            mainDisplay.repaint();
+            mainPanel.removeAll();
+            mainPanel.repaint();
         }
     };
     
     public class Display extends javax.swing.JPanel{                
-        Display(){
-            super();
-        }
+        Display(){super();}
       
+        Particle particle1 = new Particle();
+        
         public void paintComponent(Graphics g)
         {   
             final int STEP = 5;
             super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D)g;
             
-            double dt = 0.01;
-            double positionX = 0;
-            double positionY = 0;
+            particle1.positionX = 0;
+            particle1.positionY = 0;
+            particle1.velocityX = initialSpeed * Math.cos(Math.toRadians(initialAngle));
+            particle1.velocityY = initialSpeed * Math.sin(Math.toRadians(initialAngle));
             
-            for(int i=0;i<10000;i++){
+            double referencePositionX = 0.1*(double)getWidth();
+            double referencePositionY = 0.9*(double)getHeight(); // initial position in main panel
+            double dt = 0.01;    
+            Ellipse2D.Double o = new Ellipse2D.Double(referencePositionX,referencePositionY,10,10);
+            
+            g2.draw(o);
+           
+            particle1.velocityX = 100;
+            particle1.velocityY = 100;
+            
+            double maximumDisplacementX = 2*particle1.velocityX*particle1.velocityY/GRAVITATIONAL_CONSTANT;
+            double maximumDisplacementY = particle1.velocityY*particle1.velocityY/(2*GRAVITATIONAL_CONSTANT);
+            // for rescaling distance
+            
+            while(particle1.positionY>=0){
+            
+                particle1.positionX = particle1.positionX + particle1.velocityX * dt;
+                particle1.positionY = particle1.positionY + particle1.velocityY * dt;
+                particle1.velocityY = particle1.velocityY - GRAVITATIONAL_CONSTANT*dt;
+
+                o = new Ellipse2D.Double(referencePositionX+(particle1.positionX/maximumDisplacementX)*(double)getWidth()*0.8,
+                                         referencePositionY-(particle1.positionY/maximumDisplacementY)*(double)getHeight()*0.8,
+                                         10,10);
                 
-                //Color color = new Color(255,255, 0,(int)(255/2+Math.sin(omega[i])*255/2));
-                //g.setColor(color);
-                //radius = (int) Math.abs(10+Math.sin(omega[i])*10);
-                //g.fillOval(x[i]-radius/2,y[i]-radius/2,radius,radius);
+                g2.draw(o);
+                g2.setColor(Color.black);
+               
+                        
             }
         }
+     
    
     }
         
@@ -109,30 +150,30 @@ public class Projectile extends javax.swing.JApplet {
         jButton1 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jInternalFrame1 = new javax.swing.JInternalFrame();
-        jPanel1 = new javax.swing.JPanel();
+        parameterPanel = new javax.swing.JPanel();
         linearFrictionCheckBox = new javax.swing.JCheckBox();
         quadraticFrictionCheckBox = new javax.swing.JCheckBox();
-        jLabel1 = new javax.swing.JLabel();
+        massOfParticleLabel = new javax.swing.JLabel();
         massOfParticleSlider = new javax.swing.JSlider();
         massOfParticleInput = new javax.swing.JSpinner();
-        jLabel2 = new javax.swing.JLabel();
+        initalAngleLabel = new javax.swing.JLabel();
         initialAngleSlider = new javax.swing.JSlider();
         initialAngleInput = new javax.swing.JSpinner();
-        jLabel3 = new javax.swing.JLabel();
+        intialSpeedLabel = new javax.swing.JLabel();
         initialSpeedSlider = new javax.swing.JSlider();
         initialSpeedInput = new javax.swing.JSpinner();
-        jLabel4 = new javax.swing.JLabel();
+        linearFrictionLabel = new javax.swing.JLabel();
         linearFrictionSlider = new javax.swing.JSlider();
-        jLabel5 = new javax.swing.JLabel();
+        quadraticFrictionLabel = new javax.swing.JLabel();
         quadraticFrictionCoefficient = new javax.swing.JSpinner();
         quadraticFrictionSlider = new javax.swing.JSlider();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        pauseButton = new javax.swing.JButton();
+        startButton = new javax.swing.JButton();
         linearFrictionCoefficient = new javax.swing.JSpinner();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        mainDisplay = new Display();
+        mainPanel = new Display();
         jPanel4 = new javax.swing.JPanel();
         jButton6 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
@@ -173,7 +214,7 @@ public class Projectile extends javax.swing.JApplet {
 
         quadraticFrictionCheckBox.setText("Friction (quadratic)");
 
-        jLabel1.setText("Mass");
+        massOfParticleLabel.setText("Mass");
 
         massOfParticleSlider.setMinimum(1);
 
@@ -192,23 +233,39 @@ public class Projectile extends javax.swing.JApplet {
             }
         });
 
-        jLabel2.setText("Intial Angle");
+        initalAngleLabel.setText("Intial Angle");
+
+        initialAngleSlider.setMaximum(90);
 
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, initialAngleInput, org.jdesktop.beansbinding.ELProperty.create("${value}"), initialAngleSlider, org.jdesktop.beansbinding.BeanProperty.create("value"));
         bindingGroup.addBinding(binding);
 
-        jLabel3.setText("Intial Speed");
+        initialAngleSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                initialAngleSliderStateChanged(evt);
+            }
+        });
+
+        intialSpeedLabel.setText("Intial Speed");
+
+        initialSpeedSlider.setMinimum(1);
 
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, initialSpeedInput, org.jdesktop.beansbinding.ELProperty.create("${value}"), initialSpeedSlider, org.jdesktop.beansbinding.BeanProperty.create("value"));
         bindingGroup.addBinding(binding);
 
-        jLabel4.setText("Friction coefficient 1");
+        initialSpeedSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                initialSpeedSliderStateChanged(evt);
+            }
+        });
 
-        jLabel5.setText("Friction coefficient 2");
+        linearFrictionLabel.setText("Friction coefficient 1");
 
-        jButton3.setText("Pause");
+        quadraticFrictionLabel.setText("Friction coefficient 2");
 
-        jButton4.setText("Start");
+        pauseButton.setText("Pause");
+
+        startButton.setText("Start");
 
         jLabel6.setText("(kg)");
 
@@ -216,84 +273,89 @@ public class Projectile extends javax.swing.JApplet {
 
         jLabel8.setText("(m/s)");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout parameterPanelLayout = new javax.swing.GroupLayout(parameterPanel);
+        parameterPanel.setLayout(parameterPanelLayout);
+        parameterPanelLayout.setHorizontalGroup(
+            parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, parameterPanelLayout.createSequentialGroup()
+                .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(parameterPanelLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(linearFrictionCheckBox))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(quadraticFrictionSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(parameterPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(initialAngleSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
                         .addGap(17, 17, 17)
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(quadraticFrictionLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
                         .addComponent(quadraticFrictionCoefficient, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(quadraticFrictionSlider, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(massOfParticleSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(initialAngleSlider, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(8, 8, 8)
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(linearFrictionCoefficient, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(initialSpeedSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(linearFrictionSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(8, 8, 8)
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(massOfParticleInput, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel6)
-                                .addGap(4, 4, 4))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(parameterPanelLayout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(massOfParticleLabel)
+                            .addComponent(initalAngleLabel)
+                            .addComponent(intialSpeedLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(massOfParticleInput, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(initialAngleInput, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(initialSpeedInput, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel7)
+                            .addComponent(jLabel8)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(linearFrictionSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(initialSpeedSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
+                        .addGap(14, 14, 14)
+                        .addComponent(linearFrictionLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(linearFrictionCoefficient, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(startButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
+                        .addComponent(pauseButton, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(massOfParticleSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
+                        .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(linearFrictionCheckBox))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
                                 .addGap(6, 6, 6)
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(initialAngleInput, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel7))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(quadraticFrictionCheckBox)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(jLabel3)
-                                .addGap(46, 46, 46)
-                                .addComponent(initialSpeedInput, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel8)))))
+                                .addComponent(quadraticFrictionCheckBox)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+        parameterPanelLayout.setVerticalGroup(
+            parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, parameterPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
+                .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(massOfParticleLabel)
                     .addComponent(massOfParticleInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(massOfParticleSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
+                .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(initalAngleLabel)
                     .addComponent(initialAngleInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(initialAngleSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
+                .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(intialSpeedLabel)
                     .addComponent(initialSpeedInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel8))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -301,35 +363,35 @@ public class Projectile extends javax.swing.JApplet {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(linearFrictionCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
+                .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(linearFrictionLabel)
                     .addComponent(linearFrictionCoefficient, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(linearFrictionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(quadraticFrictionCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
+                .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(quadraticFrictionLabel)
                     .addComponent(quadraticFrictionCoefficient, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(quadraticFrictionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton4)
-                    .addComponent(jButton3)))
+                .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(startButton)
+                    .addComponent(pauseButton)))
         );
 
-        mainDisplay.setBackground(new java.awt.Color(255, 255, 255));
+        mainPanel.setBackground(new java.awt.Color(255, 255, 255));
 
-        javax.swing.GroupLayout mainDisplayLayout = new javax.swing.GroupLayout(mainDisplay);
-        mainDisplay.setLayout(mainDisplayLayout);
-        mainDisplayLayout.setHorizontalGroup(
-            mainDisplayLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
+        mainPanel.setLayout(mainPanelLayout);
+        mainPanelLayout.setHorizontalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
         );
-        mainDisplayLayout.setVerticalGroup(
-            mainDisplayLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        mainPanelLayout.setVerticalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
         );
 
@@ -354,7 +416,7 @@ public class Projectile extends javax.swing.JApplet {
                 .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(37, Short.MAX_VALUE))
+                .addContainerGap(43, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -382,10 +444,10 @@ public class Projectile extends javax.swing.JApplet {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jInternalFrame1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(mainDisplay, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(parameterPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jInternalFrame1Layout.setVerticalGroup(
@@ -393,9 +455,9 @@ public class Projectile extends javax.swing.JApplet {
             .addGroup(jInternalFrame1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(parameterPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jInternalFrame1Layout.createSequentialGroup()
-                        .addComponent(mainDisplay, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
@@ -424,48 +486,56 @@ public class Projectile extends javax.swing.JApplet {
     }//GEN-LAST:event_massOfParticleInputStateChanged
 
     private void massOfParticleSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_massOfParticleSliderStateChanged
-        
+            massOfParticle = massOfParticleSlider.getValue();
     }//GEN-LAST:event_massOfParticleSliderStateChanged
+
+    private void initialAngleSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_initialAngleSliderStateChanged
+            initialAngle = initialAngleSlider.getValue();
+    }//GEN-LAST:event_initialAngleSliderStateChanged
+
+    private void initialSpeedSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_initialSpeedSliderStateChanged
+            initialSpeed = initialSpeedSlider.getValue();
+    }//GEN-LAST:event_initialSpeedSliderStateChanged
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel initalAngleLabel;
     private javax.swing.JSpinner initialAngleInput;
     private javax.swing.JSlider initialAngleSlider;
     private javax.swing.JSpinner initialSpeedInput;
     private javax.swing.JSlider initialSpeedSlider;
+    private javax.swing.JLabel intialSpeedLabel;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
     private javax.swing.JInternalFrame jInternalFrame1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JCheckBox linearFrictionCheckBox;
     private javax.swing.JSpinner linearFrictionCoefficient;
+    private javax.swing.JLabel linearFrictionLabel;
     private javax.swing.JSlider linearFrictionSlider;
-    private javax.swing.JPanel mainDisplay;
+    private javax.swing.JPanel mainPanel;
     private javax.swing.JSpinner massOfParticleInput;
+    private javax.swing.JLabel massOfParticleLabel;
     private javax.swing.JSlider massOfParticleSlider;
+    private javax.swing.JPanel parameterPanel;
+    private javax.swing.JButton pauseButton;
     private javax.swing.JCheckBox quadraticFrictionCheckBox;
     private javax.swing.JSpinner quadraticFrictionCoefficient;
+    private javax.swing.JLabel quadraticFrictionLabel;
     private javax.swing.JSlider quadraticFrictionSlider;
+    private javax.swing.JButton startButton;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }
