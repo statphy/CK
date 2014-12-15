@@ -18,8 +18,7 @@ import java.util.ArrayList;
 public class YoungDoubleSlit extends javax.swing.JApplet {
     int wavelength, slit_width, slit_distance;   
     javax.swing.Timer timer ;
-    boolean isTimerOn;
-    
+    boolean isTimerOn;    
     
     /**
      * Initializes the applet YoungDoubleSlit
@@ -57,37 +56,42 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
         try {
             java.awt.EventQueue.invokeAndWait(new Runnable() {
                 public void run() {
-                    initComponents();
-                    System.out.println("Start Timer!!");
-                    timer = new javax.swing.Timer(100,new aListener());
-                    isTimerOn = false;
-                    //start();
+                    initComponents();                    
+                    isTimerOn = false;   
+                    timer = null;
                 }                
             });
         } catch (Exception ex) {
             ex.printStackTrace();
-        }
-        //timer.setRepeats(True);
-        
-        //javax.swing.Timer timer = new javax.swing.Timer(1000, this);        
+        }           
     }
-    public void start()
-    {
+    public void timerStart()
+    {   if ( timer == null ){
+            System.out.println("Start Timer!!");                    
+            timer = new javax.swing.Timer(100,new aListener()); 
+            timer.stop();
+        }
         timer.start();
         isTimerOn = true;
     }
-    public void stop()
+    public void timerStop()
     {
         timer.stop();
         isTimerOn = false;
     }
     public class aListener implements ActionListener 
-    {
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("On Timer!!");
-                upperView.repaint();
-                resultView.repaint();
-            }
+    {       
+                public void actionPerformed(ActionEvent e) {                    
+                    if ( isTimerOn ) {
+                        System.out.println("On Timer!!");
+                        upperView.repaint();
+                        resultView.repaint();
+                    }
+                    else {
+                        System.out.println("Already Stop Timer!!");
+                    }
+                }
+            //}
     };
     
     public class UpperViewPane extends javax.swing.JPanel{                
@@ -121,22 +125,25 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
             else if( wave<=350) co = Color.BLACK;            
             return co;
         }
-        public void paintComponent(Graphics g)
+        public void paintComponent(Graphics g)                
         {   
+            final int STEP = 5;            
             int size = radius.size();
-            call= call+1;
-            if ( call%(wavelength/100)==0 ) newWave();
-            final int STEP = 5;
             super.paintComponent(g);
             g.setColor(Color.black);            
             g.drawRect(300,0,50,120);
             g.drawRect(300,this.getHeight()-120,50,120);
+            g.clearRect(351, 0, this.getWidth(),this.getHeight());
+            if ( !isTimerOn ) return;
+            call= call+1;
+            if ( call%(wavelength/100)==0 ) newWave();
+            
             for(int i=0 ; i< size ; i++){
                 g.setColor(changeColor(wavelength_array.get(i)));                            
                 radius.set(i,radius.get(i)+STEP);            
                 g.drawOval(100-radius.get(i)/2,125-radius.get(i)/2,radius.get(i),radius.get(i));                
             }
-            g.clearRect(351, 0, this.getWidth(),this.getHeight());
+            
             System.out.format("%d %d\n",radius.get(0), wavelength );            
         }
         public void restart(){
@@ -447,8 +454,8 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        if ( isTimerOn ) stop();
-        else start();
+        if ( isTimerOn ) timerStop();
+        else timerStart();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void theEndButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_theEndButtonActionPerformed
