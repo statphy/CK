@@ -112,7 +112,8 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
     {       
                 public void actionPerformed(ActionEvent e) {                    
                     if ( isTimerOn ) {
-                        System.out.println("On Timer!!");
+                        //System.out.println("On Timer!!");
+                        //System.out.println( (int) theWaveLengthSlider.getValue()) ;
                         upperView.repaint();
                         resultView.repaint();
                     }
@@ -203,7 +204,7 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
                 g.drawOval(100-radius.get(i)/2,(int)(height/2)-radius.get(i)/2,radius.get(i),radius.get(i));                
             }
             
-            System.out.format("%d %d\n",radius.get(0), wavelength );            
+            //System.out.format("%d %d\n",radius.get(0), wavelength );            
         }
         public void restart(){
             radius.clear();
@@ -350,6 +351,8 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
         theSlitWidth = new javax.swing.JSpinner();
         theWaveLengthSlider = new javax.swing.JSlider();
         ClearButton = new javax.swing.JButton();
+        theWidthSlider = new javax.swing.JSlider();
+        theDistanceSlider = new javax.swing.JSlider();
         upperView = new UpperViewPane();
         resultView = new ResultViewPane(getResultChart());
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -410,6 +413,9 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
 
         jLabel4.setText("Slit Distance");
 
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, theDistanceSlider, org.jdesktop.beansbinding.ELProperty.create("${value}"), theDistanceSlits, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        bindingGroup.addBinding(binding);
+
         theDistanceSlits.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 theDistanceSlitsStateChanged(evt);
@@ -457,6 +463,41 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
             }
         });
 
+        theWidthSlider.setMaximum(50);
+        theWidthSlider.setMinimum(1);
+        theWidthSlider.setValue(1);
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, theSlitWidth, org.jdesktop.beansbinding.ELProperty.create("${value}"), theWidthSlider, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        bindingGroup.addBinding(binding);
+
+        theWidthSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                theWidthSliderStateChanged(evt);
+            }
+        });
+        theWidthSlider.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                theWidthSliderPropertyChange(evt);
+            }
+        });
+
+        theDistanceSlider.setMaximum(300);
+        theDistanceSlider.setValue(0);
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, theDistanceSlits, org.jdesktop.beansbinding.ELProperty.create("${value}"), theDistanceSlider, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        bindingGroup.addBinding(binding);
+
+        theDistanceSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                theDistanceSliderStateChanged(evt);
+            }
+        });
+        theDistanceSlider.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                theDistanceSliderPropertyChange(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -464,58 +505,68 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(22, 22, 22)
-                        .addComponent(theWaveLength, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(ClearButton, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(theEndButton, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(theSlitWidth, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(theDistanceSlits, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(226, 226, 226))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(theWaveLengthSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(theRadioButton2)
                             .addComponent(theRadioButton1)
                             .addComponent(theRadioButton3)
-                            .addComponent(StartButton, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(theRadioButton2)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(theDistanceSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(theWaveLengthSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(theWidthSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(theSlitWidth, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(theDistanceSlits, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(theWaveLength, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(StartButton, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(ClearButton, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(28, 28, 28)
+                                .addComponent(theEndButton, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(139, Short.MAX_VALUE)
+                .addContainerGap(106, Short.MAX_VALUE)
                 .addComponent(theRadioButton3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(theRadioButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(theRadioButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(theSlitWidth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(theDistanceSlits, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(theWaveLength, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(theWaveLengthSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(49, 49, 49)
+                .addGap(59, 59, 59)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(theSlitWidth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(theWidthSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(theDistanceSlits, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(theDistanceSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(theWaveLength, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(theWaveLengthSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(35, 35, 35)
                 .addComponent(StartButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(19, 19, 19)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(theEndButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ClearButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -566,18 +617,15 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
                     .addComponent(upperView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(resultView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 211, Short.MAX_VALUE))
         );
         jInternalFrame1Layout.setVerticalGroup(
             jInternalFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jInternalFrame1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
             .addGroup(jInternalFrame1Layout.createSequentialGroup()
                 .addComponent(upperView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(resultView, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -594,61 +642,83 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
         bindingGroup.bind();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void StartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StartButtonActionPerformed
+    private void theDistanceSliderPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_theDistanceSliderPropertyChange
         // TODO add your handling code here:
-        if ( isTimerOn ) timerStop();
-        else timerStart();
-    }//GEN-LAST:event_StartButtonActionPerformed
+    }//GEN-LAST:event_theDistanceSliderPropertyChange
 
-    private void theEndButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_theEndButtonActionPerformed
+    private void theDistanceSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_theDistanceSliderStateChanged
         // TODO add your handling code here:
-        System.exit(0);
-    }//GEN-LAST:event_theEndButtonActionPerformed
+    }//GEN-LAST:event_theDistanceSliderStateChanged
 
-    private void theRadioButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_theRadioButton2ActionPerformed
+    private void theWidthSliderPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_theWidthSliderPropertyChange
         // TODO add your handling code here:
-    }//GEN-LAST:event_theRadioButton2ActionPerformed
+    }//GEN-LAST:event_theWidthSliderPropertyChange
 
-    private void theRadioButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_theRadioButton3ActionPerformed
+    private void theWidthSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_theWidthSliderStateChanged
         // TODO add your handling code here:
-    }//GEN-LAST:event_theRadioButton3ActionPerformed
-
-    private void theWaveLengthSliderPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_theWaveLengthSliderPropertyChange
-        // TODO add your handling code here:
-        System.out.println("Found PropertyChanged.");
-        String property = evt.getPropertyName();
-       if ( "value".equals(property)) {
-           wavelength = (int) evt.getNewValue();
-       }
-    }//GEN-LAST:event_theWaveLengthSliderPropertyChange
-
-    private void theWaveLengthSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_theWaveLengthSliderStateChanged
-        // TODO add your handling code here:
-        //System.out.println("Found state changed!");
-        //System.out.println("Source : "+evt.getSource());
-        wavelength = (int) theWaveLength.getValue();
-    }//GEN-LAST:event_theWaveLengthSliderStateChanged
-
-    private void theWaveLengthStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_theWaveLengthStateChanged
-        // TODO add your handling code here:
-    }//GEN-LAST:event_theWaveLengthStateChanged
-
-    private void theRadioButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_theRadioButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_theRadioButton1ActionPerformed
+    }//GEN-LAST:event_theWidthSliderStateChanged
 
     private void ClearButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClearButtonActionPerformed
         // 선언은 JPanel로 되어 있기 때문에 사용하려면 형변환 필요.
         ((UpperViewPane)upperView).restart();// TODO add your handling code here:
     }//GEN-LAST:event_ClearButtonActionPerformed
 
+    private void theWaveLengthSliderPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_theWaveLengthSliderPropertyChange
+        // TODO add your handling code here:
+        System.out.println("Found PropertyChanged.");
+        String property = evt.getPropertyName();
+        if ( "value".equals(property)) {
+            wavelength = (int) evt.getNewValue();
+        }
+    }//GEN-LAST:event_theWaveLengthSliderPropertyChange
+
+    private void theWaveLengthSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_theWaveLengthSliderStateChanged
+        // TODO add your handling code here:
+        //System.out.println("Found state changed!");
+        System.out.println("Source : "+evt.getSource());
+        wavelength = (int) theWaveLengthSlider.getValue();
+        theWaveLength.setValue((int)theWaveLengthSlider.getValue());
+    }//GEN-LAST:event_theWaveLengthSliderStateChanged
+
     private void theSlitWidthStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_theSlitWidthStateChanged
         slit_width = (int) theSlitWidth.getValue();  // TODO add your handling code here:
     }//GEN-LAST:event_theSlitWidthStateChanged
 
+    private void theRadioButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_theRadioButton3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_theRadioButton3ActionPerformed
+
     private void theDistanceSlitsStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_theDistanceSlitsStateChanged
         slit_distance = (int) theDistanceSlits.getValue();  // TODO add your handling code here:
     }//GEN-LAST:event_theDistanceSlitsStateChanged
+
+    private void theRadioButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_theRadioButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_theRadioButton2ActionPerformed
+
+    private void theRadioButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_theRadioButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_theRadioButton1ActionPerformed
+
+    private void theWaveLengthStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_theWaveLengthStateChanged
+        // TODO add your handling code here:
+        System.out.println("Source : "+evt.getSource());
+        wavelength = (int) theWaveLength.getValue();
+        theWaveLengthSlider.setValue((int)theWaveLength.getValue());
+    }//GEN-LAST:event_theWaveLengthStateChanged
+
+    private void theEndButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_theEndButtonActionPerformed
+        // TODO add your handling code here:
+        setVisible(false);
+        //dispose();
+        System.exit(0);
+    }//GEN-LAST:event_theEndButtonActionPerformed
+
+    private void StartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StartButtonActionPerformed
+        // TODO add your handling code here:
+        if ( isTimerOn ) timerStop();
+        else timerStart();
+    }//GEN-LAST:event_StartButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -665,6 +735,7 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel resultView;
     private javax.swing.ButtonGroup theButtonGroup;
+    private javax.swing.JSlider theDistanceSlider;
     private javax.swing.JSpinner theDistanceSlits;
     private javax.swing.JButton theEndButton;
     private javax.swing.JRadioButton theRadioButton1;
@@ -673,6 +744,7 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
     private javax.swing.JSpinner theSlitWidth;
     private javax.swing.JSpinner theWaveLength;
     private javax.swing.JSlider theWaveLengthSlider;
+    private javax.swing.JSlider theWidthSlider;
     private javax.swing.JPanel upperView;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
