@@ -91,7 +91,7 @@ public class Projectile extends javax.swing.JApplet {
             java.awt.EventQueue.invokeAndWait(new Runnable() {
                 public void run() {
                     initComponents(); 
-                    timer = new javax.swing.Timer(10,new aListener());
+                    timer = new javax.swing.Timer(1,new aListener());
                     timer.start();
                     particle = new Particle();
                     dynamics = new Dynamics();
@@ -143,9 +143,8 @@ public class Projectile extends javax.swing.JApplet {
             g2.setColor(Color.black);  
             
             System.out.println("y="+particle.positionY);
+            if(particle.positionY < 0) timer.stop();
             dynamics.TimeEvolution(particle);
-            if(particle.positionY < 0 ) return;
-            
         }
     }
         
