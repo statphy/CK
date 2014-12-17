@@ -160,7 +160,7 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
         }
         public Color changeColor(int wave){
             Color co = Color.BLACK;
-            if (wave>622 && wave<=780) co = Color.RED;
+            if (wave>622 ) co = Color.RED;
             else if( wave>597 && wave<=622) co = Color.ORANGE;
             else if( wave>577 && wave<=597) co = Color.YELLOW;
             else if( wave>492 && wave<=577) co = Color.GREEN;
@@ -248,8 +248,8 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
             Font f = new Font("Gulim", Font.BOLD, 14);
             Font axisF = new Font("Gulim", Font.PLAIN, 14);
                     rend.setBaseItemLabelGenerator(generator);
-                    rend.setBaseItemLabelsVisible(true);
-                    rend.setBaseShapesVisible(true);
+                    rend.setBaseItemLabelsVisible(false);
+                    rend.setBaseShapesVisible(false);
                     rend.setDrawOutlines(true);
                     rend.setUseFillPaint(true);
                     rend.setBaseFillPaint(Color.WHITE);
