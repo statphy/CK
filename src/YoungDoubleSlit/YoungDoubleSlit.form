@@ -92,35 +92,23 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel4" alignment="0" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
                               <Component id="jLabel3" max="32767" attributes="0"/>
                               <EmptySpace min="-2" pref="226" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="theRadioButton1" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="theRadioButton3" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Group type="103" alignment="0" groupAlignment="1" attributes="0">
-                                      <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="theRadioButton2" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
-                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="theDistanceSlider" alignment="0" min="-2" pref="113" max="-2" attributes="0"/>
-                                          <Component id="theWaveLengthSlider" min="-2" pref="113" max="-2" attributes="0"/>
-                                          <Component id="theWidthSlider" alignment="0" min="-2" pref="113" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                          <Component id="theDistanceSlider" alignment="0" pref="113" max="32767" attributes="0"/>
+                                          <Component id="theWidthSlider" alignment="0" pref="0" max="32767" attributes="0"/>
+                                          <Component id="jLabel4" alignment="0" min="-2" pref="82" max="-2" attributes="0"/>
                                       </Group>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="1" attributes="0">
                                           <Component id="theSlitWidth" alignment="1" min="-2" pref="74" max="-2" attributes="0"/>
-                                          <Component id="theDistanceSlits" alignment="1" min="-2" pref="73" max="-2" attributes="0"/>
                                           <Component id="theWaveLength" alignment="1" min="-2" pref="73" max="-2" attributes="0"/>
+                                          <Component id="theDistanceSlits" alignment="0" min="-2" pref="73" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
                                   <Component id="StartButton" alignment="0" min="-2" pref="79" max="-2" attributes="0"/>
@@ -132,6 +120,18 @@
                               </Group>
                               <EmptySpace max="32767" attributes="0"/>
                           </Group>
+                          <Group type="102" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="theRadioButton1" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="theSingleSlitRadioButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Group type="103" alignment="0" groupAlignment="1" attributes="0">
+                                      <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="theRadioButton2" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Component id="theWaveLengthSlider" alignment="0" min="-2" pref="113" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          </Group>
                       </Group>
                   </Group>
               </Group>
@@ -139,41 +139,43 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace pref="106" max="32767" attributes="0"/>
-                      <Component id="theRadioButton3" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="90" max="-2" attributes="0"/>
+                      <Component id="theSingleSlitRadioButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="theRadioButton1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="theRadioButton2" min="-2" pref="23" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="59" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="theSlitWidth" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
+                          <Group type="102" attributes="0">
                               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="theWidthSlider" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="theDistanceSlits" alignment="3" min="-2" pref="22" max="-2" attributes="0"/>
-                              </Group>
+                          </Group>
+                          <Component id="theSlitWidth" min="-2" pref="35" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace pref="21" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="theDistanceSlider" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="theWaveLength" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="theWaveLength" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
                               <Component id="theWaveLengthSlider" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
+                              <Component id="StartButton" min="-2" pref="40" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="theEndButton" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
+                                  <Component id="ClearButton" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
-                      </Group>
-                      <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
-                      <Component id="StartButton" min="-2" pref="40" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="theEndButton" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
-                          <Component id="ClearButton" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
+                          <Component id="theDistanceSlits" min="-2" pref="30" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -250,7 +252,7 @@
                 <Property name="text" type="java.lang.String" value="Slit width"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JRadioButton" name="theRadioButton3">
+            <Component class="javax.swing.JRadioButton" name="theSingleSlitRadioButton">
               <Properties>
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="theButtonGroup"/>
@@ -259,10 +261,14 @@
                 <Property name="text" type="java.lang.String" value="Single Slit( d=0 )"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="theRadioButton3ActionPerformed"/>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="theSingleSlitRadioButtonStateChanged"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="theSingleSlitRadioButtonActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JSpinner" name="theSlitWidth">
+              <BindingProperties>
+                <BindingProperty name="value" source="theWidthSlider" sourcePath="${value}" target="theSlitWidth" targetPath="value" updateStrategy="0" immediately="false"/>
+              </BindingProperties>
               <Events>
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="theSlitWidthStateChanged"/>
               </Events>
@@ -294,7 +300,6 @@
               <Properties>
                 <Property name="maximum" type="int" value="50"/>
                 <Property name="minimum" type="int" value="1"/>
-                <Property name="value" type="int" value="1"/>
               </Properties>
               <BindingProperties>
                 <BindingProperty name="value" source="theSlitWidth" sourcePath="${value}" target="theWidthSlider" targetPath="value" updateStrategy="0" immediately="false">
@@ -309,7 +314,6 @@
             <Component class="javax.swing.JSlider" name="theDistanceSlider">
               <Properties>
                 <Property name="maximum" type="int" value="300"/>
-                <Property name="value" type="int" value="0"/>
               </Properties>
               <BindingProperties>
                 <BindingProperty name="value" source="theDistanceSlits" sourcePath="${value}" target="theDistanceSlider" targetPath="value" updateStrategy="0" immediately="false">
@@ -343,7 +347,7 @@
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="296" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>
