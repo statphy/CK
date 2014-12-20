@@ -4,9 +4,9 @@
  * and open the template in the editor.
  */
 package YoungDoubleSlit;
-import java.lang.Math;
+//import java.lang.Math;
 
-import java.applet.*;
+//import java.applet.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Graphics;
@@ -164,18 +164,17 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
         }
         public Color changeColor(int wave){
             Color co = Color.BLACK;
+            double rel = (1-(wave-300.)/(800.0-300.0))*0.8;
             if ( wave>0) {
-                double rel = (1-(wave-300.)/(800.0-300.0))*0.8;
                 co = Color.getHSBColor( (float)rel, 1f, 1f);            
             }
-            else {                
-                double rel = (1-(wave-300.)/(800.0-300.0))*0.8;
+            else {                                
                 co = Color.getHSBColor( (float)rel, 0.5f, 0.5f);            
             }
             return co;
         }
         public void removePlaneWave(){
-            if ( x_pos.get(0)> (int)(this.getWidth()*0.5+25) ) {
+            if ( x_pos.get(0)> (int)(this.getWidth()*0.5+40) ) {
                 after_x_pos.add(x_pos.get(0));
                 after_wavelength.add(wavelength_array.get(0));
                 x_pos.remove(0);
@@ -208,43 +207,35 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
                 x_pos.set(i,x_pos.get(i)+STEP);            
                 g.drawLine(x_pos.get(i),60,x_pos.get(i), 230);                
             }
-            if ( single_mode) {
-                for( int i=0 ; i< after_x_pos.size(); i++){
-                    g.setColor(changeColor(after_wavelength.get(i)));
-                    after_x_pos.set(i,after_x_pos.get(i)+STEP);
-
-                    int x = (int)(this.getWidth()*0.5)+50;
-                    int w = (after_x_pos.get(i) - x)*2;
-                    int y = (int)(this.getHeight()/2)-w/2;
-                    int h = w;
-                    
-                    //System.out.format("%d %d %d %d\n",w,h,x,y);
-                    g.drawArc(x-h/2, y, w, h, -90, 180);  
-                    
+            
+            for( int i=0 ; i< after_x_pos.size(); i++){
+                g.setColor(changeColor(after_wavelength.get(i)));
+                after_x_pos.set(i,after_x_pos.get(i)+STEP);
+                int x = (int)(this.getWidth()*0.5)+50;
+                int w = (after_x_pos.get(i) - x)*2;
+                int y = (int)(this.getHeight()/2)-w/2;
+                int h = w;
+                
+                //System.out.format("%d %d %d %d\n",w,h,x,y);
+                if ( single_mode) {
+                g.drawArc(x-h/2, y, w, h, -90, 180);  
                 }
+                else {
+                    g.drawArc(x-h/2, y-65, w, h, -90, 180);                    
+                    g.drawArc(x-h/2, y+65, w, h, -90, 180);                    
+                }    
+            }
+            if ( single_mode) {
                 g.setColor(Color.BLACK);
                 g.fillRect((int)(width*0.5),0,50,120);
                 g.fillRect((int)(width*0.5),height-120,50,120);
-            }            
+            }
             else {
-                //System.out.println("Draw double");
-                for( int i=0 ; i< after_x_pos.size(); i++){
-                    g.setColor(changeColor(after_wavelength.get(i)));
-                    after_x_pos.set(i,after_x_pos.get(i)+STEP);
-                    
-                    int x = (int)(this.getWidth()*0.5)+50;
-                    int w = (after_x_pos.get(i) - x)*2;
-                    int y = (int)(this.getHeight()/2)-w/2;
-                    int h = w;
-                    
-                    g.drawArc(x-h/2, y-65, w, h, -90, 180);                    
-                    g.drawArc(x-h/2, y+65, w, h, -90, 180);                    
-                }
                 g.setColor(Color.BLACK);
                 g.fillRect((int)(width*0.5),0,50,70);
                 g.fillRect((int)(width*0.5),100,50,100);
                 g.fillRect((int)(width*0.5),230,50,height);
-            }            
+            }
             //System.out.format("%d %d\n",radius.get(0), wavelength );            
         }
         public void restart(){
@@ -254,8 +245,6 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
             after_wavelength.clear();
             x_pos.add(0);
             wavelength_array.add(wavelength);
-            
-            
             call=0;
         }
 
@@ -293,21 +282,21 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
             );
             Font f = new Font("Gulim", Font.BOLD, 14);
             Font axisF = new Font("Gulim", Font.PLAIN, 14);
-                    rend.setBaseItemLabelGenerator(generator);
-                    rend.setBaseItemLabelsVisible(false);
-                    rend.setBaseShapesVisible(false);
-                    rend.setDrawOutlines(true);
-                    rend.setUseFillPaint(true);
-                    rend.setBaseFillPaint(Color.WHITE);
-                    rend.setBaseItemLabelFont(f);
-                    rend.setBasePositiveItemLabelPosition(p_below);
-                    rend.setSeriesPaint(0,new Color(219,121,22));
-                    rend.setSeriesStroke(0,new BasicStroke(
-                            2.0f,
-                            BasicStroke.CAP_ROUND,
-                            BasicStroke.JOIN_ROUND,
-                            3.0f)
-                    );
+            rend.setBaseItemLabelGenerator(generator);
+            rend.setBaseItemLabelsVisible(false);
+            rend.setBaseShapesVisible(false);
+            rend.setDrawOutlines(true);
+            rend.setUseFillPaint(true);
+            rend.setBaseFillPaint(Color.WHITE);
+            rend.setBaseItemLabelFont(f);
+            rend.setBasePositiveItemLabelPosition(p_below);
+            rend.setSeriesPaint(0,new Color(219,121,22));
+            rend.setSeriesStroke(0,new BasicStroke(
+                2.0f,
+                BasicStroke.CAP_ROUND,
+                BasicStroke.JOIN_ROUND,
+                3.0f)
+             );
             final CategoryPlot plot = new CategoryPlot();
             plot.setDataset(theAmp);
             plot.setRenderer(rend);
@@ -321,7 +310,8 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
             plot.setDomainAxis(new CategoryAxis());       // X축 종류 설정
             plot.getDomainAxis().setTickLabelFont(axisF); // X축 눈금라벨 폰트 조정
             plot.getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.STANDARD);       // 카테고리 라벨 위치 조정
-
+            //plot.getDomainAxis().set
+            
             // Y축 세팅
             plot.setRangeAxis(new NumberAxis());                 // Y축 종류 설정
             plot.getRangeAxis().setTickLabelFont(axisF);  // Y축 눈금라벨 폰트 조정      
@@ -340,10 +330,6 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
         return chart;
             
     }
-        
-    
-    
-    
     public class ResultViewPane extends ChartPanel{        
         ResultViewPane(JFreeChart chart){                        
             super(chart);
@@ -357,17 +343,7 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
             if ( isTimerOn ) {
                 this.setChart(getResultChart());
             }
-            
-            //g2.drawLine(0,height/5*4, width, (int)(height*0.8));
-            
         }
-        
-        /**
-        public void repaint()
-        {
-            
-        }
-        */        
     }
     /**
      * This method is called from within the init() method to initialize the
