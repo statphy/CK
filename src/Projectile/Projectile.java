@@ -31,6 +31,7 @@ class Particle{
 class Dynamics extends Particle{
     
     static final double GRAVITATIONAL_CONSTANT=9.8;
+    
     double dt = 0.01;
     
     double positionXArray[] = new double[10000];
@@ -38,10 +39,36 @@ class Dynamics extends Particle{
     double velocityXArray[] = new double[10000];
     double velocityYArray[] = new double[10000];
     
-    public void TimeEvolution(Particle particle){
-        particle.positionX = particle.positionX + particle.velocityX * dt;
-        particle.positionY = particle.positionY + particle.velocityY * dt;
-        particle.velocityY = particle.velocityY - GRAVITATIONAL_CONSTANT*dt;
+    double velocityXTemp;
+    double velocityYTemp;
+    
+    public void TimeEvolution(Particle particle, Boolean linearSwitch, double linearFrictionCoeff,
+                                                 Boolean quadraticSwitch, double quadraticFrictionCoeff){
+        particle.positionX += particle.velocityX * dt;
+        particle.positionY += particle.velocityY * dt;
+        velocityXTemp = particle.velocityX;
+        velocityYTemp = particle.velocityY - GRAVITATIONAL_CONSTANT*dt;
+        
+        // 저항의 일차항에 의한 속도감소
+        if(linearSwitch){
+            velocityXTemp -= linearFrictionCoeff*particle.velocityX*dt;
+            velocityYTemp -= linearFrictionCoeff*particle.velocityY*dt;
+        }
+        
+        // 저항의 이차항에 의한 속도감소
+        if(quadraticSwitch){
+            if(velocityXTemp>0){
+                velocityXTemp -= quadraticFrictionCoeff*particle.velocityX*particle.velocityX*dt;
+            }
+            else velocityXTemp += quadraticFrictionCoeff*particle.velocityX*particle.velocityX*dt;
+            
+            if(velocityYTemp>0){
+                velocityYTemp -= quadraticFrictionCoeff*particle.velocityY*particle.velocityY*dt;
+            }
+            else velocityYTemp += quadraticFrictionCoeff*particle.velocityY*particle.velocityY*dt;
+        }
+        particle.velocityX = velocityXTemp;
+        particle.velocityY = velocityYTemp;
     }
     
 }
@@ -49,12 +76,17 @@ class Dynamics extends Particle{
 public class Projectile extends javax.swing.JApplet {
 
     static final double GRAVITATIONAL_CONSTANT=9.8;
+    static final double SPEED_MAX=100;
+    
+    boolean linearSwitch = false;
+    boolean quadraticSwitch = false;
     
     double massOfParticle;
     double initialAngle;
     double initialSpeed;
-    double initialVelocityX;
-    double initialVelocityY;
+    double linearFrictionCoeff;
+    double quadraticFrictionCoeff;
+
     Particle particle;
     Dynamics dynamics;
     javax.swing.Timer timer;
@@ -92,20 +124,9 @@ public class Projectile extends javax.swing.JApplet {
                 public void run() {
                     initComponents(); 
                     timer = new javax.swing.Timer(1,new aListener());
-                    timer.start();
+                    timer.stop();
                     particle = new Particle();
                     dynamics = new Dynamics();
-                    particle.positionX = 0;
-                    particle.positionY = 0;
-                    
-                    initialSpeed = 100;
-                    initialAngle = 45;
-                    initialVelocityX = initialSpeed * Math.cos(Math.toRadians(initialAngle));
-                    initialVelocityY = initialSpeed * Math.sin(Math.toRadians(initialAngle));
-                    
-                    particle.velocityX = initialVelocityX;
-                    particle.velocityY = initialVelocityY;
-                    
                 }
             });
         } catch (Exception ex) {
@@ -132,19 +153,18 @@ public class Projectile extends javax.swing.JApplet {
             double referencePositionX = 0.1*(double)getWidth();
             double referencePositionY = 0.9*(double)getHeight(); // initial position in main panel
             
-            double maximumDisplacementX = 2*initialVelocityX*initialVelocityY/GRAVITATIONAL_CONSTANT;    
-            double maximumDisplacementY = initialVelocityY*initialVelocityY/(2*GRAVITATIONAL_CONSTANT);
+            double maximumDisplacementX = SPEED_MAX*SPEED_MAX/GRAVITATIONAL_CONSTANT;    
+            double maximumDisplacementY = SPEED_MAX*SPEED_MAX/(2*GRAVITATIONAL_CONSTANT);
             // to rescale distance
             
             Ellipse2D.Double o = new Ellipse2D.Double(referencePositionX+(particle.positionX/maximumDisplacementX)*(double)getWidth()*0.8,
                                      referencePositionY-(particle.positionY/maximumDisplacementY)*(double)getHeight()*0.8,
-                                     10,10);
+                                     15,15);
             g2.draw(o);
             g2.setColor(Color.black);  
             
-            System.out.println("y="+particle.positionY);
             if(particle.positionY < 0) timer.stop();
-            dynamics.TimeEvolution(particle);
+            dynamics.TimeEvolution(particle,linearSwitch,linearFrictionCoeff,quadraticSwitch,quadraticFrictionCoeff);
         }
     }
         
@@ -178,14 +198,14 @@ public class Projectile extends javax.swing.JApplet {
         linearFrictionLabel = new javax.swing.JLabel();
         linearFrictionSlider = new javax.swing.JSlider();
         quadraticFrictionLabel = new javax.swing.JLabel();
-        quadraticFrictionCoefficient = new javax.swing.JSpinner();
         quadraticFrictionSlider = new javax.swing.JSlider();
         pauseButton = new javax.swing.JButton();
         startButton = new javax.swing.JButton();
-        linearFrictionCoefficient = new javax.swing.JSpinner();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
+        linearFrictionInput = new javax.swing.JTextField();
+        quadraticFrictionInput = new javax.swing.JTextField();
         mainPanel = new MainDisplay();
         buttonPanel = new javax.swing.JPanel();
         jButton6 = new javax.swing.JButton();
@@ -220,6 +240,11 @@ public class Projectile extends javax.swing.JApplet {
         jInternalFrame1.setVisible(true);
 
         linearFrictionCheckBox.setText("Friction (linear)");
+        linearFrictionCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                linearFrictionCheckBoxStateChanged(evt);
+            }
+        });
         linearFrictionCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 linearFrictionCheckBoxActionPerformed(evt);
@@ -227,6 +252,16 @@ public class Projectile extends javax.swing.JApplet {
         });
 
         quadraticFrictionCheckBox.setText("Friction (quadratic)");
+        quadraticFrictionCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                quadraticFrictionCheckBoxStateChanged(evt);
+            }
+        });
+        quadraticFrictionCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                quadraticFrictionCheckBoxActionPerformed(evt);
+            }
+        });
 
         massOfParticleLabel.setText("Mass");
 
@@ -241,6 +276,7 @@ public class Projectile extends javax.swing.JApplet {
             }
         });
 
+        massOfParticleInput.setValue(50);
         massOfParticleInput.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 massOfParticleInputStateChanged(evt);
@@ -250,6 +286,7 @@ public class Projectile extends javax.swing.JApplet {
         initalAngleLabel.setText("Intial Angle");
 
         initialAngleSlider.setMaximum(90);
+        initialAngleSlider.setMinimum(1);
 
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, initialAngleInput, org.jdesktop.beansbinding.ELProperty.create("${value}"), initialAngleSlider, org.jdesktop.beansbinding.BeanProperty.create("value"));
         bindingGroup.addBinding(binding);
@@ -259,6 +296,8 @@ public class Projectile extends javax.swing.JApplet {
                 initialAngleSliderStateChanged(evt);
             }
         });
+
+        initialAngleInput.setValue(45);
 
         intialSpeedLabel.setText("Intial Speed");
 
@@ -273,19 +312,60 @@ public class Projectile extends javax.swing.JApplet {
             }
         });
 
+        initialSpeedInput.setValue(50);
+
         linearFrictionLabel.setText("Friction coefficient 1");
+
+        linearFrictionSlider.setValue(0);
+        linearFrictionSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                linearFrictionSliderStateChanged(evt);
+            }
+        });
 
         quadraticFrictionLabel.setText("Friction coefficient 2");
 
-        pauseButton.setText("Pause");
+        quadraticFrictionSlider.setMaximum(10);
+        quadraticFrictionSlider.setValue(0);
+        quadraticFrictionSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                quadraticFrictionSliderStateChanged(evt);
+            }
+        });
+
+        pauseButton.setText("Exit");
+        pauseButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pauseButtonActionPerformed(evt);
+            }
+        });
 
         startButton.setText("Start");
+        startButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                startButtonActionPerformed(evt);
+            }
+        });
 
         jLabel6.setText("(kg)");
 
         jLabel7.setText("(deg)");
 
         jLabel8.setText("(m/s)");
+
+        linearFrictionInput.setText("0");
+        linearFrictionInput.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                linearFrictionInputActionPerformed(evt);
+            }
+        });
+
+        quadraticFrictionInput.setText("0");
+        quadraticFrictionInput.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                quadraticFrictionInputActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout parameterPanelLayout = new javax.swing.GroupLayout(parameterPanel);
         parameterPanel.setLayout(parameterPanelLayout);
@@ -299,11 +379,6 @@ public class Projectile extends javax.swing.JApplet {
                     .addGroup(parameterPanelLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(initialAngleSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addComponent(quadraticFrictionLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
-                        .addComponent(quadraticFrictionCoefficient, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(parameterPanelLayout.createSequentialGroup()
                         .addGap(6, 6, 6)
                         .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -327,11 +402,6 @@ public class Projectile extends javax.swing.JApplet {
                         .addGap(6, 6, 6)
                         .addComponent(initialSpeedSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
-                        .addGap(14, 14, 14)
-                        .addComponent(linearFrictionLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(linearFrictionCoefficient, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
                         .addGap(6, 6, 6)
                         .addComponent(startButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
@@ -340,14 +410,27 @@ public class Projectile extends javax.swing.JApplet {
                         .addGap(6, 6, 6)
                         .addComponent(massOfParticleSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
+                        .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(parameterPanelLayout.createSequentialGroup()
+                                .addGap(17, 17, 17)
+                                .addComponent(quadraticFrictionLabel))
+                            .addGroup(parameterPanelLayout.createSequentialGroup()
+                                .addGap(14, 14, 14)
+                                .addComponent(linearFrictionLabel)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(linearFrictionInput, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(quadraticFrictionInput, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 29, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
                         .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(linearFrictionCheckBox))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
                                 .addGap(6, 6, 6)
-                                .addComponent(quadraticFrictionCheckBox)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                                .addComponent(quadraticFrictionCheckBox))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(linearFrictionCheckBox)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         parameterPanelLayout.setVerticalGroup(
@@ -379,7 +462,7 @@ public class Projectile extends javax.swing.JApplet {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(linearFrictionLabel)
-                    .addComponent(linearFrictionCoefficient, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(linearFrictionInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(linearFrictionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -387,7 +470,7 @@ public class Projectile extends javax.swing.JApplet {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(quadraticFrictionLabel)
-                    .addComponent(quadraticFrictionCoefficient, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(quadraticFrictionInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(quadraticFrictionSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -402,7 +485,7 @@ public class Projectile extends javax.swing.JApplet {
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 537, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -430,7 +513,7 @@ public class Projectile extends javax.swing.JApplet {
                 .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(43, Short.MAX_VALUE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
         buttonPanelLayout.setVerticalGroup(
             buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -508,7 +591,18 @@ public class Projectile extends javax.swing.JApplet {
     }// </editor-fold>//GEN-END:initComponents
 
     private void linearFrictionCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_linearFrictionCheckBoxActionPerformed
-        // TODO add your handling code here:
+        if(linearSwitch){
+            linearSwitch = false;
+            linearFrictionCoeff = 0;
+            linearFrictionSlider.setValue(0);
+            linearFrictionInput.setText("0");
+        }
+        else{
+            linearSwitch = true;
+            linearFrictionCoeff = 0.01;
+            linearFrictionSlider.setValue(1);
+            linearFrictionInput.setText("0.01");
+        }
     }//GEN-LAST:event_linearFrictionCheckBoxActionPerformed
 
     private void massOfParticleInputStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_massOfParticleInputStateChanged
@@ -526,6 +620,94 @@ public class Projectile extends javax.swing.JApplet {
     private void initialSpeedSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_initialSpeedSliderStateChanged
             initialSpeed = initialSpeedSlider.getValue();
     }//GEN-LAST:event_initialSpeedSliderStateChanged
+
+    private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
+        startButton.setText("Restart");
+        particle = new Particle();
+        dynamics = new Dynamics();
+        
+        particle.mass = massOfParticleSlider.getValue();
+        initialAngle = initialAngleSlider.getValue();
+        initialSpeed = initialSpeedSlider.getValue();
+
+        particle.velocityX = initialSpeed * Math.cos(Math.toRadians(initialAngle));
+        particle.velocityY = initialSpeed * Math.sin(Math.toRadians(initialAngle));
+        
+        timer.start();
+    }//GEN-LAST:event_startButtonActionPerformed
+
+    private void linearFrictionCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_linearFrictionCheckBoxStateChanged
+
+    }//GEN-LAST:event_linearFrictionCheckBoxStateChanged
+
+    private void quadraticFrictionCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_quadraticFrictionCheckBoxStateChanged
+
+    }//GEN-LAST:event_quadraticFrictionCheckBoxStateChanged
+
+    private void quadraticFrictionCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quadraticFrictionCheckBoxActionPerformed
+        if(quadraticSwitch){
+            quadraticSwitch = false;
+            quadraticFrictionCoeff = 0;
+            quadraticFrictionSlider.setValue(0);
+            quadraticFrictionInput.setText("0");
+        }
+        else{
+            quadraticSwitch = true;
+            quadraticFrictionCoeff = 0.001;
+            quadraticFrictionSlider.setValue(1);
+            quadraticFrictionInput.setText("0.001");
+        }
+    }//GEN-LAST:event_quadraticFrictionCheckBoxActionPerformed
+
+    private void linearFrictionSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_linearFrictionSliderStateChanged
+        if(linearSwitch){
+            linearFrictionInput.setText(""+(double)linearFrictionSlider.getValue()/100.);
+            linearFrictionCoeff = (double)linearFrictionSlider.getValue()/100.;
+        }
+    }//GEN-LAST:event_linearFrictionSliderStateChanged
+
+    private void quadraticFrictionSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_quadraticFrictionSliderStateChanged
+            if(quadraticSwitch){
+                quadraticFrictionInput.setText(""+(double)quadraticFrictionSlider.getValue()/1000.);
+                quadraticFrictionCoeff = (double)quadraticFrictionSlider.getValue()/1000.;
+            }
+    }//GEN-LAST:event_quadraticFrictionSliderStateChanged
+
+    private void linearFrictionInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_linearFrictionInputActionPerformed
+        // text box에서 바로 입력을 받았을때 최대 최소에 대한 제한조건을 준다.
+        try{
+            double value = 100*Double.parseDouble(linearFrictionInput.getText());
+            if(value<=100){
+                linearFrictionSlider.setValue((int)(value));
+            }else{
+                linearFrictionSlider.setValue(100);
+                linearFrictionInput.setText("1.00");
+            }
+        }catch(java.lang.NumberFormatException e){// 문자 Input 에러 처리
+            linearFrictionSlider.setValue(50);
+            linearFrictionInput.setText("0.5");
+        }                                           
+    }//GEN-LAST:event_linearFrictionInputActionPerformed
+
+    private void quadraticFrictionInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quadraticFrictionInputActionPerformed
+        // text box에서 바로 입력을 받았을때 최대 최소에 대한 제한조건을 준다.
+        try{
+            double value = 1000*Double.parseDouble(quadraticFrictionInput.getText());
+            if(value<=10){
+                quadraticFrictionSlider.setValue((int)(value));
+            }else{
+                quadraticFrictionSlider.setValue(10);
+                quadraticFrictionInput.setText("0.01");
+            }
+        }catch(java.lang.NumberFormatException e){// 문자 Input 에러 처리
+            quadraticFrictionSlider.setValue(5);
+            quadraticFrictionInput.setText("0.005");
+        }                                           
+    }//GEN-LAST:event_quadraticFrictionInputActionPerformed
+
+    private void pauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseButtonActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_pauseButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -553,7 +735,7 @@ public class Projectile extends javax.swing.JApplet {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JCheckBox linearFrictionCheckBox;
-    private javax.swing.JSpinner linearFrictionCoefficient;
+    private javax.swing.JTextField linearFrictionInput;
     private javax.swing.JLabel linearFrictionLabel;
     private javax.swing.JSlider linearFrictionSlider;
     private javax.swing.JPanel mainPanel;
@@ -563,7 +745,7 @@ public class Projectile extends javax.swing.JApplet {
     private javax.swing.JPanel parameterPanel;
     private javax.swing.JButton pauseButton;
     private javax.swing.JCheckBox quadraticFrictionCheckBox;
-    private javax.swing.JSpinner quadraticFrictionCoefficient;
+    private javax.swing.JTextField quadraticFrictionInput;
     private javax.swing.JLabel quadraticFrictionLabel;
     private javax.swing.JSlider quadraticFrictionSlider;
     private javax.swing.JButton startButton;

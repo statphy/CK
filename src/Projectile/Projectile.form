@@ -122,12 +122,6 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="initialAngleSlider" max="32767" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="17" pref="17" max="-2" attributes="0"/>
-                              <Component id="quadraticFrictionLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="17" max="32767" attributes="0"/>
-                              <Component id="quadraticFrictionCoefficient" min="-2" pref="50" max="-2" attributes="0"/>
-                          </Group>
                           <Group type="102" attributes="0">
                               <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
@@ -157,12 +151,6 @@
                               <Component id="initialSpeedSlider" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="14" pref="14" max="-2" attributes="0"/>
-                              <Component id="linearFrictionLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="32767" attributes="0"/>
-                              <Component id="linearFrictionCoefficient" min="-2" pref="50" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
                               <Component id="startButton" max="32767" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -173,17 +161,35 @@
                               <Component id="massOfParticleSlider" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="1" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="0" attributes="0">
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="linearFrictionCheckBox" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace min="17" pref="17" max="-2" attributes="0"/>
+                                      <Component id="quadraticFrictionLabel" min="-2" max="-2" attributes="0"/>
                                   </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <EmptySpace min="14" pref="14" max="-2" attributes="0"/>
+                                      <Component id="linearFrictionLabel" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="linearFrictionInput" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                                  <Component id="quadraticFrictionInput" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="0" pref="29" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="1" attributes="0">
                                   <Group type="102" alignment="0" attributes="0">
                                       <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
                                       <Component id="quadraticFrictionCheckBox" min="-2" max="-2" attributes="0"/>
                                   </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="linearFrictionCheckBox" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                               </Group>
-                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -222,7 +228,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="linearFrictionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="linearFrictionCoefficient" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="linearFrictionInput" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="linearFrictionSlider" min="-2" pref="41" max="-2" attributes="0"/>
@@ -231,7 +237,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="quadraticFrictionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="quadraticFrictionCoefficient" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="quadraticFrictionInput" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="quadraticFrictionSlider" min="-2" pref="41" max="-2" attributes="0"/>
@@ -250,6 +256,7 @@
                 <Property name="text" type="java.lang.String" value="Friction (linear)"/>
               </Properties>
               <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="linearFrictionCheckBoxStateChanged"/>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="linearFrictionCheckBoxActionPerformed"/>
               </Events>
             </Component>
@@ -257,6 +264,10 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Friction (quadratic)"/>
               </Properties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="quadraticFrictionCheckBoxStateChanged"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="quadraticFrictionCheckBoxActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="massOfParticleLabel">
               <Properties>
@@ -277,6 +288,11 @@
               </Events>
             </Component>
             <Component class="javax.swing.JSpinner" name="massOfParticleInput">
+              <Properties>
+                <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="50" type="code"/>
+                </Property>
+              </Properties>
               <Events>
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="massOfParticleInputStateChanged"/>
               </Events>
@@ -289,6 +305,7 @@
             <Component class="javax.swing.JSlider" name="initialAngleSlider">
               <Properties>
                 <Property name="maximum" type="int" value="90"/>
+                <Property name="minimum" type="int" value="1"/>
               </Properties>
               <BindingProperties>
                 <BindingProperty name="value" source="initialAngleInput" sourcePath="${value}" target="initialAngleSlider" targetPath="value" updateStrategy="0" immediately="false">
@@ -300,6 +317,11 @@
               </Events>
             </Component>
             <Component class="javax.swing.JSpinner" name="initialAngleInput">
+              <Properties>
+                <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="45" type="code"/>
+                </Property>
+              </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="intialSpeedLabel">
               <Properties>
@@ -320,6 +342,11 @@
               </Events>
             </Component>
             <Component class="javax.swing.JSpinner" name="initialSpeedInput">
+              <Properties>
+                <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="50" type="code"/>
+                </Property>
+              </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="linearFrictionLabel">
               <Properties>
@@ -327,27 +354,42 @@
               </Properties>
             </Component>
             <Component class="javax.swing.JSlider" name="linearFrictionSlider">
+              <Properties>
+                <Property name="value" type="int" value="0"/>
+              </Properties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="linearFrictionSliderStateChanged"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="quadraticFrictionLabel">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Friction coefficient 2"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JSpinner" name="quadraticFrictionCoefficient">
-            </Component>
             <Component class="javax.swing.JSlider" name="quadraticFrictionSlider">
+              <Properties>
+                <Property name="maximum" type="int" value="10"/>
+                <Property name="value" type="int" value="0"/>
+              </Properties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="quadraticFrictionSliderStateChanged"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="pauseButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Pause"/>
+                <Property name="text" type="java.lang.String" value="Exit"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pauseButtonActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="startButton">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Start"/>
               </Properties>
-            </Component>
-            <Component class="javax.swing.JSpinner" name="linearFrictionCoefficient">
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="startButtonActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel6">
               <Properties>
@@ -364,6 +406,22 @@
                 <Property name="text" type="java.lang.String" value="(m/s)"/>
               </Properties>
             </Component>
+            <Component class="javax.swing.JTextField" name="linearFrictionInput">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="0"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="linearFrictionInputActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JTextField" name="quadraticFrictionInput">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="0"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="quadraticFrictionInputActionPerformed"/>
+              </Events>
+            </Component>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="mainPanel">
@@ -379,7 +437,7 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="537" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
@@ -403,7 +461,7 @@
                       <Component id="jButton7" min="-2" pref="113" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="jButton8" min="-2" pref="113" max="-2" attributes="0"/>
-                      <EmptySpace pref="43" max="32767" attributes="0"/>
+                      <EmptySpace pref="25" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
