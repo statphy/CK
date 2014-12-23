@@ -212,29 +212,24 @@ public class Projectile extends javax.swing.JApplet {
                             this.lineTo(0.1*(double)getWidth()+(double)i*dt,
                                         0.9*(double)getHeight()-positionXArray.get(i)*0.8*(double)getHeight()/positionXArray.get(positionXArray.size()-1));
                         break;
-/*
                     case GRAPH.ytgraph :
-                        this.moveTo(virtualX(-Math.PI),virtualY(0.0));
-                        this.lineTo(virtualX(-width), virtualY(0.0));
-                        this.lineTo(virtualX(0.0), virtualY(1.0));
-                        this.lineTo(virtualX(width), virtualY(0.0));
-                        this.lineTo(virtualX(Math.PI), virtualY(0.0));
+                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
+                        for(int i=0;i<positionYArray.size();i++)
+                            this.lineTo(0.1*(double)getWidth()+(double)i*dt,
+                                        0.9*(double)getHeight()-positionYArray.get(i)*0.8*(double)getHeight()/positionYArray.get(positionYArray.size()/2-1));
                         break;
                     case GRAPH.vxtgraph :
-                        this.moveTo(virtualX(-Math.PI),virtualY(0.0));
-                        for(double x = -width;x<width;x+=dx)
-                            this.lineTo(virtualX(x), virtualY((width*width-x*x)/(width)/(width)));
-                        this.lineTo(virtualX(width), virtualY(0.0));
-                        this.lineTo(virtualX(Math.PI), virtualY(0.0));
+                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
+                        for(int i=0;i<velocityXArray.size();i++)
+                            this.lineTo(0.1*(double)getWidth()+(double)i*dt,
+                                        0.9*(double)getHeight()-velocityXArray.get(i)*0.8*(double)getHeight()/velocityXArray.get(0));
                         break;
                     case GRAPH.vytgraph :
-                        this.moveTo(virtualX(-Math.PI),virtualY(0.0));
-                        for(double x = -width;x<width;x+=dx)
-                            this.lineTo(virtualX(x), virtualY(Math.cos(x*Math.PI/(2.*width))));
-                        this.lineTo(virtualX(width), virtualY(0.0));
-                        this.lineTo(virtualX(Math.PI), virtualY(0.0));
+                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
+                        for(int i=0;i<velocityYArray.size();i++)
+                            this.lineTo(0.1*(double)getWidth()+(double)i*dt,
+                                        0.9*(double)getHeight()-velocityYArray.get(i)*0.8*(double)getHeight()/velocityYArray.get(0));
                         break;
-                        */
                 }
             }
         }// class for the trial function
