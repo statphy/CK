@@ -454,13 +454,13 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jButton9" min="-2" pref="113" max="-2" attributes="0"/>
+                      <Component id="xtGraphButton" min="-2" pref="113" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="jButton6" min="-2" pref="113" max="-2" attributes="0"/>
+                      <Component id="ytGraphButton" min="-2" pref="113" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="jButton7" min="-2" pref="113" max="-2" attributes="0"/>
+                      <Component id="vxtGraphButton" min="-2" pref="113" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="jButton8" min="-2" pref="113" max="-2" attributes="0"/>
+                      <Component id="vytGraphButton" min="-2" pref="113" max="-2" attributes="0"/>
                       <EmptySpace pref="25" max="32767" attributes="0"/>
                   </Group>
               </Group>
@@ -470,35 +470,47 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="32767" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jButton9" alignment="3" max="32767" attributes="0"/>
-                          <Component id="jButton6" alignment="3" max="32767" attributes="0"/>
-                          <Component id="jButton7" alignment="3" max="32767" attributes="0"/>
-                          <Component id="jButton8" alignment="3" max="32767" attributes="0"/>
+                          <Component id="xtGraphButton" alignment="3" max="32767" attributes="0"/>
+                          <Component id="ytGraphButton" alignment="3" max="32767" attributes="0"/>
+                          <Component id="vxtGraphButton" alignment="3" max="32767" attributes="0"/>
+                          <Component id="vytGraphButton" alignment="3" max="32767" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JButton" name="jButton6">
+            <Component class="javax.swing.JButton" name="ytGraphButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Graph 2"/>
+                <Property name="text" type="java.lang.String" value="y-t graph"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ytGraphButtonActionPerformed"/>
+              </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="jButton7">
+            <Component class="javax.swing.JButton" name="vxtGraphButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Graph 3"/>
+                <Property name="text" type="java.lang.String" value="Vx-t graph"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="vxtGraphButtonActionPerformed"/>
+              </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="jButton8">
+            <Component class="javax.swing.JButton" name="vytGraphButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Graph 4"/>
+                <Property name="text" type="java.lang.String" value="Vy-t graph"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="vytGraphButtonActionPerformed"/>
+              </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="jButton9">
+            <Component class="javax.swing.JButton" name="xtGraphButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Graph 1"/>
+                <Property name="text" type="java.lang.String" value="x-t graph"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="xtGraphButtonActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
@@ -508,6 +520,9 @@
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new GraphDisplay()"/>
+          </AuxValues>
 
           <Layout>
             <DimensionLayout dim="0">

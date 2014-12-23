@@ -8,9 +8,12 @@ package Projectile;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Path2D;
+import java.util.ArrayList;
 
 /**
  *
@@ -80,12 +83,24 @@ public class Projectile extends javax.swing.JApplet {
     
     boolean linearSwitch = false;
     boolean quadraticSwitch = false;
+    interface GRAPH {
+        final int xtgraph = 0;
+        final int ytgraph = 1;
+        final int vxtgraph = 2;
+        final int vytgraph = 3;
+    }
+    int graphSwitch; 
     
     double massOfParticle;
     double initialAngle;
     double initialSpeed;
     double linearFrictionCoeff;
     double quadraticFrictionCoeff;
+    
+    ArrayList<Double> positionXArray = new ArrayList<>();
+    ArrayList<Double> positionYArray = new ArrayList<>();
+    ArrayList<Double> velocityXArray = new ArrayList<>();
+    ArrayList<Double> velocityYArray = new ArrayList<>();
 
     Particle particle;
     Dynamics dynamics;
@@ -157,17 +172,89 @@ public class Projectile extends javax.swing.JApplet {
             double maximumDisplacementY = SPEED_MAX*SPEED_MAX/(2*GRAVITATIONAL_CONSTANT);
             // to rescale distance
             
-            Ellipse2D.Double o = new Ellipse2D.Double(referencePositionX+(particle.positionX/maximumDisplacementX)*(double)getWidth()*0.8,
-                                     referencePositionY-(particle.positionY/maximumDisplacementY)*(double)getHeight()*0.8,
-                                     15,15);
-            g2.draw(o);
-            g2.setColor(Color.black);  
+            Ellipse2D.Double object
+            = new Ellipse2D.Double(referencePositionX+(particle.positionX/maximumDisplacementX)*(double)getWidth()*0.8,
+                                   referencePositionY-(particle.positionY/maximumDisplacementY)*(double)getHeight()*0.8,
+                                   15,15);
+            g2.fill(object);
+            g2.setColor(Color.black);
+            
+            positionXArray.add(particle.positionX);
+            positionYArray.add(particle.positionY);
+            velocityXArray.add(particle.velocityX);
+            velocityYArray.add(particle.velocityY);
             
             if(particle.positionY < 0) timer.stop();
             dynamics.TimeEvolution(particle,linearSwitch,linearFrictionCoeff,quadraticSwitch,quadraticFrictionCoeff);
         }
     }
+     
+    public class GraphDisplay extends javax.swing.JPanel{                
+        GraphDisplay(){super();}
         
+        private class axis extends Path2D.Double{
+            public axis(){
+                this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight());
+                this.lineTo(0.9*(double)getWidth(),0.9*(double)getHeight()); // x축
+                this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight());
+                this.lineTo(0.1*(double)getWidth(),0.1*(double)getHeight()); // y축
+            }
+        }
+        
+        // class for the trial function
+        private class noFriction extends Path2D.Double{
+            public noFriction(){
+                final double dt = 0.8*(double)getWidth()/(double)positionXArray.size();
+                switch(graphSwitch){
+                    case GRAPH.xtgraph :
+                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
+                        for(int i=0;i<positionXArray.size();i++)
+                            this.lineTo(0.1*(double)getWidth()+(double)i*dt,
+                                        0.9*(double)getHeight()-positionXArray.get(i)*0.8*(double)getHeight()/positionXArray.get(positionXArray.size()-1));
+                        break;
+/*
+                    case GRAPH.ytgraph :
+                        this.moveTo(virtualX(-Math.PI),virtualY(0.0));
+                        this.lineTo(virtualX(-width), virtualY(0.0));
+                        this.lineTo(virtualX(0.0), virtualY(1.0));
+                        this.lineTo(virtualX(width), virtualY(0.0));
+                        this.lineTo(virtualX(Math.PI), virtualY(0.0));
+                        break;
+                    case GRAPH.vxtgraph :
+                        this.moveTo(virtualX(-Math.PI),virtualY(0.0));
+                        for(double x = -width;x<width;x+=dx)
+                            this.lineTo(virtualX(x), virtualY((width*width-x*x)/(width)/(width)));
+                        this.lineTo(virtualX(width), virtualY(0.0));
+                        this.lineTo(virtualX(Math.PI), virtualY(0.0));
+                        break;
+                    case GRAPH.vytgraph :
+                        this.moveTo(virtualX(-Math.PI),virtualY(0.0));
+                        for(double x = -width;x<width;x+=dx)
+                            this.lineTo(virtualX(x), virtualY(Math.cos(x*Math.PI/(2.*width))));
+                        this.lineTo(virtualX(width), virtualY(0.0));
+                        this.lineTo(virtualX(Math.PI), virtualY(0.0));
+                        break;
+                        */
+                }
+            }
+        }// class for the trial function
+
+        public void paintComponent(Graphics g)
+        {   
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D)g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+        
+            // Drawing x-axis and y-axis
+            g2.setPaint(Color.black);
+            g2.draw(new axis());
+            
+            // Drawing the box-shaped trial function
+            g2.setPaint(Color.blue);
+            g2.draw(new noFriction());
+        }
+    }
+    
     /**
      * This method is called from within the init() method to initialize the
      * form. WARNING: Do NOT modify this code. The content of this method is
@@ -208,11 +295,11 @@ public class Projectile extends javax.swing.JApplet {
         quadraticFrictionInput = new javax.swing.JTextField();
         mainPanel = new MainDisplay();
         buttonPanel = new javax.swing.JPanel();
-        jButton6 = new javax.swing.JButton();
-        jButton7 = new javax.swing.JButton();
-        jButton8 = new javax.swing.JButton();
-        jButton9 = new javax.swing.JButton();
-        graphPanel = new javax.swing.JPanel();
+        ytGraphButton = new javax.swing.JButton();
+        vxtGraphButton = new javax.swing.JButton();
+        vytGraphButton = new javax.swing.JButton();
+        xtGraphButton = new javax.swing.JButton();
+        graphPanel = new GraphDisplay();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
@@ -492,13 +579,33 @@ public class Projectile extends javax.swing.JApplet {
             .addGap(0, 248, Short.MAX_VALUE)
         );
 
-        jButton6.setText("Graph 2");
+        ytGraphButton.setText("y-t graph");
+        ytGraphButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ytGraphButtonActionPerformed(evt);
+            }
+        });
 
-        jButton7.setText("Graph 3");
+        vxtGraphButton.setText("Vx-t graph");
+        vxtGraphButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                vxtGraphButtonActionPerformed(evt);
+            }
+        });
 
-        jButton8.setText("Graph 4");
+        vytGraphButton.setText("Vy-t graph");
+        vytGraphButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                vytGraphButtonActionPerformed(evt);
+            }
+        });
 
-        jButton9.setText("Graph 1");
+        xtGraphButton.setText("x-t graph");
+        xtGraphButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                xtGraphButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout buttonPanelLayout = new javax.swing.GroupLayout(buttonPanel);
         buttonPanel.setLayout(buttonPanelLayout);
@@ -506,13 +613,13 @@ public class Projectile extends javax.swing.JApplet {
             buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(buttonPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton9, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(xtGraphButton, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(ytGraphButton, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(vxtGraphButton, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(vytGraphButton, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(25, Short.MAX_VALUE))
         );
         buttonPanelLayout.setVerticalGroup(
@@ -520,10 +627,10 @@ public class Projectile extends javax.swing.JApplet {
             .addGroup(buttonPanelLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(xtGraphButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(ytGraphButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(vxtGraphButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(vytGraphButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
         graphPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -626,6 +733,11 @@ public class Projectile extends javax.swing.JApplet {
         particle = new Particle();
         dynamics = new Dynamics();
         
+        positionXArray = new ArrayList<>();
+        positionYArray = new ArrayList<>();
+        velocityXArray = new ArrayList<>();
+        velocityYArray = new ArrayList<>();
+        
         particle.mass = massOfParticleSlider.getValue();
         initialAngle = initialAngleSlider.getValue();
         initialSpeed = initialSpeedSlider.getValue();
@@ -709,6 +821,30 @@ public class Projectile extends javax.swing.JApplet {
         System.exit(0);
     }//GEN-LAST:event_pauseButtonActionPerformed
 
+    private void xtGraphButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xtGraphButtonActionPerformed
+        graphSwitch = GRAPH.xtgraph;
+        graphPanel.removeAll();
+        graphPanel.repaint();
+    }//GEN-LAST:event_xtGraphButtonActionPerformed
+
+    private void ytGraphButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ytGraphButtonActionPerformed
+        graphSwitch = GRAPH.ytgraph;
+        graphPanel.removeAll();
+        graphPanel.repaint();
+    }//GEN-LAST:event_ytGraphButtonActionPerformed
+
+    private void vxtGraphButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vxtGraphButtonActionPerformed
+        graphSwitch = GRAPH.vxtgraph;
+        graphPanel.removeAll();
+        graphPanel.repaint();
+    }//GEN-LAST:event_vxtGraphButtonActionPerformed
+
+    private void vytGraphButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vytGraphButtonActionPerformed
+        graphSwitch = GRAPH.vytgraph;
+        graphPanel.removeAll();
+        graphPanel.repaint();
+    }//GEN-LAST:event_vytGraphButtonActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel buttonPanel;
@@ -722,10 +858,6 @@ public class Projectile extends javax.swing.JApplet {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton7;
-    private javax.swing.JButton jButton8;
-    private javax.swing.JButton jButton9;
     private javax.swing.JInternalFrame jInternalFrame1;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -749,6 +881,10 @@ public class Projectile extends javax.swing.JApplet {
     private javax.swing.JLabel quadraticFrictionLabel;
     private javax.swing.JSlider quadraticFrictionSlider;
     private javax.swing.JButton startButton;
+    private javax.swing.JButton vxtGraphButton;
+    private javax.swing.JButton vytGraphButton;
+    private javax.swing.JButton xtGraphButton;
+    private javax.swing.JButton ytGraphButton;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }
