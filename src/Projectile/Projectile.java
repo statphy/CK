@@ -148,7 +148,11 @@ public class Projectile extends javax.swing.JApplet {
             ex.printStackTrace();
         }
     }
-
+    
+    double void findMax(ArrayList<Double> array){
+    
+    }
+    
     public class aListener implements ActionListener 
     {  
         public void actionPerformed(ActionEvent e) {
@@ -157,7 +161,7 @@ public class Projectile extends javax.swing.JApplet {
         }
     };
     
-    public class MainDisplay extends javax.swing.JPanel{                
+    public class MainDisplay extends javax.swing.JPanel{
         MainDisplay(){super();}
         
         public void paintComponent(Graphics g)
@@ -171,18 +175,26 @@ public class Projectile extends javax.swing.JApplet {
             double maximumDisplacementX = SPEED_MAX*SPEED_MAX/GRAVITATIONAL_CONSTANT;    
             double maximumDisplacementY = SPEED_MAX*SPEED_MAX/(2*GRAVITATIONAL_CONSTANT);
             // to rescale distance
-            
             Ellipse2D.Double object
-            = new Ellipse2D.Double(referencePositionX+(particle.positionX/maximumDisplacementX)*(double)getWidth()*0.8,
-                                   referencePositionY-(particle.positionY/maximumDisplacementY)*(double)getHeight()*0.8,
-                                   15,15);
-            g2.fill(object);
-            g2.setColor(Color.black);
-            
+                = new Ellipse2D.Double(referencePositionX+(particle.positionX/maximumDisplacementX)*(double)getWidth()*0.8,
+                                       referencePositionY-(particle.positionY/maximumDisplacementY)*(double)getHeight()*0.8,
+                                       15,15);
+                g2.setColor(Color.black);
+                g2.fill(object);
+                
             positionXArray.add(particle.positionX);
             positionYArray.add(particle.positionY);
             velocityXArray.add(particle.velocityX);
             velocityYArray.add(particle.velocityY);
+            
+            for(int i=0;i<positionXArray.size();i += 100){
+                object
+                = new Ellipse2D.Double(referencePositionX+(positionXArray.get(i)/maximumDisplacementX)*(double)getWidth()*0.8+5,
+                                       referencePositionY-(positionYArray.get(i)/maximumDisplacementY)*(double)getHeight()*0.8+5,
+                                       5,5);
+                g2.setColor(Color.blue);
+                g2.draw(object);
+            }
             
             if(particle.positionY < 0) timer.stop();
             dynamics.TimeEvolution(particle,linearSwitch,linearFrictionCoeff,quadraticSwitch,quadraticFrictionCoeff);
@@ -205,6 +217,21 @@ public class Projectile extends javax.swing.JApplet {
                 this.lineTo(MAX_X,MIN_Y); // x축
                 this.moveTo(MIN_X,MIN_Y);
                 this.lineTo(MIN_X,MAX_Y); // y축
+                
+                double dx,dy;
+                int tic,i;
+                tic = (int)(MAX_Y/6);
+                dx = 0.8*getWidth()/10.;
+                dy = 0.8*getHeight()/10.;
+            
+                for(i=1;i<10;i++){
+                    this.moveTo(MIN_X+dx*i,MIN_Y-tic);
+                    this.lineTo(MIN_X+dx*i,MIN_Y+tic); // x축 tic
+                    if(i%2==0){
+                        this.moveTo(MIN_X-tic,MIN_Y-dy*i);
+                        this.lineTo(MIN_X+tic,MIN_Y-dy*i); // y축 tic
+                    }
+                }
             }
         }
         
@@ -253,7 +280,6 @@ public class Projectile extends javax.swing.JApplet {
         
         private class withFriction extends Path2D.Double{
             public withFriction(){
-                
                 double MIN_X = 0.1*(double)getWidth();
                 double MAX_X = 0.9*(double)getWidth();
                 double MIN_Y = 0.9*(double)getHeight();
@@ -295,7 +321,9 @@ public class Projectile extends javax.swing.JApplet {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D)g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-        
+            
+            ArrayList<Double> tempArray = new ArrayList<>();
+            
             // Drawing x-axis and y-axis
             g2.setPaint(Color.black);
             g2.draw(new axis());
@@ -305,22 +333,43 @@ public class Projectile extends javax.swing.JApplet {
                     case GRAPH.xtgraph :
                         g2.drawString("t",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
                         g2.drawString("x",(int)(0.08*getWidth()),(int)(0.11*getHeight()));
+                        tempArray = positionXArray;
                         break;
                     case GRAPH.ytgraph :
                         g2.drawString("t",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
                         g2.drawString("y",(int)(0.08*getWidth()),(int)(0.11*getHeight()));
+                        tempArray = positionYArray;
                         break;
                     case GRAPH.vxtgraph :
                         g2.drawString("t",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
                         g2.drawString("Vx",(int)(0.07*getWidth()),(int)(0.11*getHeight()));
+                        tempArray = velocityXArray;
                         break;
                     case GRAPH.vytgraph :
                         g2.drawString("t",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
                         g2.drawString("Vy",(int)(0.07*getWidth()),(int)(0.11*getHeight()));
+                        tempArray = velocityYArray;
                         break;    
             }
-                        
-            g2.setPaint(Color.blue);
+            
+            double dx,dy;
+            int xtic,ytic,i,step;
+            String text;
+            xtic = (int)(0.06*getHeight());
+            ytic = (int)(0.03*getWidth());
+            dx = 0.8*getWidth()/10.;
+            dy = 0.8*getHeight()/10.;
+            step = 0;
+            for(i=0;i<tempArray.size();i += tempArray.size()/10 + 1){
+                g2.drawString(String.format("%.2f",i*0.01),(int)(0.08*getWidth()+dx*step),(int)(0.9*getHeight()+ xtic));
+                if(step%2==0){
+                    text = String.format("%.2f",tempArray.get(i));
+                    g2.drawString(text,(int)(0.1*getWidth()-ytic-5*text.length()),(int)(0.91*getHeight()-dy*step));
+                }
+                step ++;
+            }
+           
+           g2.setPaint(Color.blue);
             g2.draw(new noFriction()); // reference
             
             g2.setPaint(Color.red);
