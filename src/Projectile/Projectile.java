@@ -149,9 +149,6 @@ public class Projectile extends javax.swing.JApplet {
         }
     }
     
-    double void findMax(ArrayList<Double> array){
-    
-    }
     
     public class aListener implements ActionListener 
     {  
