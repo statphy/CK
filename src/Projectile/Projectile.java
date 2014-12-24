@@ -89,7 +89,7 @@ public class Projectile extends javax.swing.JApplet {
         final int vxtgraph = 2;
         final int vytgraph = 3;
     }
-    int graphSwitch; 
+    int graphSwitch=-1; 
     
     double massOfParticle;
     double initialAngle;
@@ -192,47 +192,103 @@ public class Projectile extends javax.swing.JApplet {
     public class GraphDisplay extends javax.swing.JPanel{                
         GraphDisplay(){super();}
         
+        
         private class axis extends Path2D.Double{
             public axis(){
-                this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight());
-                this.lineTo(0.9*(double)getWidth(),0.9*(double)getHeight()); // x축
-                this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight());
-                this.lineTo(0.1*(double)getWidth(),0.1*(double)getHeight()); // y축
+                
+                double MIN_X = 0.1*(double)getWidth();
+                double MAX_X = 0.9*(double)getWidth();
+                double MIN_Y = 0.9*(double)getHeight();
+                double MAX_Y = 0.1*(double)getHeight();
+                
+                this.moveTo(MIN_X,MIN_Y);
+                this.lineTo(MAX_X,MIN_Y); // x축
+                this.moveTo(MIN_X,MIN_Y);
+                this.lineTo(MIN_X,MAX_Y); // y축
             }
         }
         
-        // class for the trial function
         private class noFriction extends Path2D.Double{
             public noFriction(){
-                final double dt = 0.8*(double)getWidth()/(double)positionXArray.size();
+                
+                double MIN_X = 0.1*(double)getWidth();
+                double MAX_X = 0.9*(double)getWidth();
+                double MIN_Y = 0.9*(double)getHeight();
+                double MAX_Y = 0.1*(double)getHeight();
+                
+                final double dt = (MAX_X-MIN_X)/(double)positionXArray.size();
                 switch(graphSwitch){
                     case GRAPH.xtgraph :
                         this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
-                        for(int i=0;i<positionXArray.size();i++)
-                            this.lineTo(0.1*(double)getWidth()+(double)i*dt,
-                                        0.9*(double)getHeight()-positionXArray.get(i)*0.8*(double)getHeight()/positionXArray.get(positionXArray.size()-1));
+                        for(int i=0;i<positionXArray.size();i++){
+                            if(i%20>=10){ //dashed line
+                                this.moveTo(MIN_X+(double)i*dt,
+                                            MIN_Y+i*dt*(MAX_Y-MIN_Y)/(MAX_X-MIN_X));
+                            }
+                            else this.lineTo(MIN_X+(double)i*dt,
+                                             MIN_Y+i*dt*(MAX_Y-MIN_Y)/(MAX_X-MIN_X));
+                        }
                         break;
                     case GRAPH.ytgraph :
                         this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
                         for(int i=0;i<positionYArray.size();i++)
-                            this.lineTo(0.1*(double)getWidth()+(double)i*dt,
-                                        0.9*(double)getHeight()-positionYArray.get(i)*0.8*(double)getHeight()/positionYArray.get(positionYArray.size()/2-1));
+                            this.lineTo(MIN_X+(double)i*dt,
+                                        MIN_Y+positionYArray.get(i)*(MAX_Y-MIN_Y)/positionYArray.get(positionYArray.size()/2-1));
                         break;
                     case GRAPH.vxtgraph :
                         this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
                         for(int i=0;i<velocityXArray.size();i++)
-                            this.lineTo(0.1*(double)getWidth()+(double)i*dt,
-                                        0.9*(double)getHeight()-velocityXArray.get(i)*0.8*(double)getHeight()/velocityXArray.get(0));
+                            this.lineTo(MIN_X*(double)getWidth()+(double)i*dt,
+                                        MIN_Y+velocityXArray.get(i)*(MAX_Y-MIN_Y)/velocityXArray.get(0));
                         break;
                     case GRAPH.vytgraph :
                         this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
                         for(int i=0;i<velocityYArray.size();i++)
-                            this.lineTo(0.1*(double)getWidth()+(double)i*dt,
-                                        0.9*(double)getHeight()-velocityYArray.get(i)*0.8*(double)getHeight()/velocityYArray.get(0));
+                            this.lineTo(MIN_X+(double)i*dt,
+                                        MIN_Y+velocityYArray.get(i)*(MAX_Y-MIN_Y)/velocityYArray.get(0));
                         break;
+                    }
                 }
             }
-        }// class for the trial function
+        
+        private class withFriction extends Path2D.Double{
+            public withFriction(){
+                
+                double MIN_X = 0.1*(double)getWidth();
+                double MAX_X = 0.9*(double)getWidth();
+                double MIN_Y = 0.9*(double)getHeight();
+                double MAX_Y = 0.1*(double)getHeight();
+                
+                final double dt = (MAX_X-MIN_X)/(double)positionXArray.size();
+                switch(graphSwitch){
+                    case GRAPH.xtgraph :
+                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
+                        for(int i=0;i<positionXArray.size();i++)
+                            this.lineTo(MIN_X+(double)i*dt,
+                                        MIN_Y+positionXArray.get(i)*(MAX_Y-MIN_Y)/positionXArray.get(positionXArray.size()-1));
+                        break;
+                    case GRAPH.ytgraph :
+                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
+                        for(int i=0;i<positionYArray.size();i++)
+                            this.lineTo(MIN_X+(double)i*dt,
+                                        MIN_Y+positionYArray.get(i)*(MAX_Y-MIN_Y)/positionYArray.get(positionYArray.size()/2-1));
+                        break;
+                    case GRAPH.vxtgraph :
+                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
+                        for(int i=0;i<velocityXArray.size();i++)
+                            this.lineTo(MIN_X*(double)getWidth()+(double)i*dt,
+                                        MIN_Y+velocityXArray.get(i)*(MAX_Y-MIN_Y)/velocityXArray.get(0));
+                        break;
+                    case GRAPH.vytgraph :
+                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
+                        for(int i=0;i<velocityYArray.size();i++)
+                            this.lineTo(MIN_X+(double)i*dt,
+                                        MIN_Y+velocityYArray.get(i)*(MAX_Y-MIN_Y)/velocityYArray.get(0));
+                        break;
+                    }
+                }
+            }
+        // class for the trial function
 
         public void paintComponent(Graphics g)
         {   
@@ -244,9 +300,31 @@ public class Projectile extends javax.swing.JApplet {
             g2.setPaint(Color.black);
             g2.draw(new axis());
             
-            // Drawing the box-shaped trial function
+            // Axis Label
+            switch(graphSwitch){
+                    case GRAPH.xtgraph :
+                        g2.drawString("t",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
+                        g2.drawString("x",(int)(0.08*getWidth()),(int)(0.11*getHeight()));
+                        break;
+                    case GRAPH.ytgraph :
+                        g2.drawString("t",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
+                        g2.drawString("y",(int)(0.08*getWidth()),(int)(0.11*getHeight()));
+                        break;
+                    case GRAPH.vxtgraph :
+                        g2.drawString("t",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
+                        g2.drawString("Vx",(int)(0.07*getWidth()),(int)(0.11*getHeight()));
+                        break;
+                    case GRAPH.vytgraph :
+                        g2.drawString("t",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
+                        g2.drawString("Vy",(int)(0.07*getWidth()),(int)(0.11*getHeight()));
+                        break;    
+            }
+                        
             g2.setPaint(Color.blue);
-            g2.draw(new noFriction());
+            g2.draw(new noFriction()); // reference
+            
+            g2.setPaint(Color.red);
+            g2.draw(new withFriction());
         }
     }
     
