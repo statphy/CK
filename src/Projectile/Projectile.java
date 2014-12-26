@@ -90,6 +90,7 @@ public class Projectile extends javax.swing.JApplet {
         final int vytgraph = 3;
     }
     int graphSwitch=-1; 
+    boolean graphOnOffSwitch = false;
     
     double massOfParticle;
     double initialAngle;
@@ -101,7 +102,7 @@ public class Projectile extends javax.swing.JApplet {
     ArrayList<Double> positionYArray = new ArrayList<>();
     ArrayList<Double> velocityXArray = new ArrayList<>();
     ArrayList<Double> velocityYArray = new ArrayList<>();
-
+    
     Particle particle;
     Dynamics dynamics;
     javax.swing.Timer timer;
@@ -201,33 +202,51 @@ public class Projectile extends javax.swing.JApplet {
     public class GraphDisplay extends javax.swing.JPanel{                
         GraphDisplay(){super();}
         
-        
         private class axis extends Path2D.Double{
             public axis(){
                 
-                double MIN_X = 0.1*(double)getWidth();
-                double MAX_X = 0.9*(double)getWidth();
-                double MIN_Y = 0.9*(double)getHeight();
-                double MAX_Y = 0.1*(double)getHeight();
+                double referenceLeft = 0.1*(double)getWidth();
+                double referenceRight = 0.9*(double)getWidth();
+                double referenceBottom = 0.9*(double)getHeight();
+                double referenceTop = 0.1*(double)getHeight();
                 
-                this.moveTo(MIN_X,MIN_Y);
-                this.lineTo(MAX_X,MIN_Y); // x축
-                this.moveTo(MIN_X,MIN_Y);
-                this.lineTo(MIN_X,MAX_Y); // y축
+                if(graphSwitch == GRAPH.vytgraph){
+                    this.moveTo(referenceLeft,0.5*getHeight());
+                    this.lineTo(referenceRight,0.5*getHeight()); // x축 (중앙)
+                }
+                else{
+                    this.moveTo(referenceLeft,referenceBottom);
+                    this.lineTo(referenceRight,referenceBottom); // x축 (하단)
+                }
+                    
+                this.moveTo(referenceLeft,referenceBottom);
+                this.lineTo(referenceLeft,referenceTop); // y축
                 
                 double dx,dy;
                 int tic,i;
-                tic = (int)(MAX_Y/6);
-                dx = 0.8*getWidth()/10.;
-                dy = 0.8*getHeight()/10.;
+                tic = (int)(referenceTop/6);
+                dx = 0.8*getWidth()/20.;
+                dy = 0.8*getHeight()/20.;
             
-                for(i=1;i<10;i++){
-                    this.moveTo(MIN_X+dx*i,MIN_Y-tic);
-                    this.lineTo(MIN_X+dx*i,MIN_Y+tic); // x축 tic
-                    if(i%2==0){
-                        this.moveTo(MIN_X-tic,MIN_Y-dy*i);
-                        this.lineTo(MIN_X+tic,MIN_Y-dy*i); // y축 tic
+                for(i=1;i<20;i++){
+                    if(graphSwitch == GRAPH.vytgraph){
+                        if(i%2==0){
+                            this.moveTo(referenceLeft+dx*i,0.5*getHeight()-tic);
+                            this.lineTo(referenceLeft+dx*i,0.5*getHeight()+tic); // x축 tic (중앙)
+                        }
                     }
+                    else{
+                        if(i%2==0){
+                        this.moveTo(referenceLeft+dx*i,referenceBottom-tic);
+                        this.lineTo(referenceLeft+dx*i,referenceBottom+tic); // x축 tic (하단)
+                        }    
+                    }
+                    
+                    if(i%5==0){
+                        this.moveTo(referenceLeft-tic,referenceBottom-dy*i);
+                        this.lineTo(referenceLeft+tic,referenceBottom-dy*i); // y축 tic
+                    }    
+                        
                 }
             }
         }
@@ -235,41 +254,60 @@ public class Projectile extends javax.swing.JApplet {
         private class noFriction extends Path2D.Double{
             public noFriction(){
                 
-                double MIN_X = 0.1*(double)getWidth();
-                double MAX_X = 0.9*(double)getWidth();
-                double MIN_Y = 0.9*(double)getHeight();
-                double MAX_Y = 0.1*(double)getHeight();
+                double referenceLeft = 0.1*(double)getWidth();
+                double referenceRight = 0.9*(double)getWidth();
+                double referenceBottom = 0.9*(double)getHeight();
+                double referenceTop = 0.1*(double)getHeight();
                 
-                final double dt = (MAX_X-MIN_X)/(double)positionXArray.size();
+                double initialVelocityX = initialSpeed*Math.cos(Math.toRadians(initialAngle));
+                double initialVelocityY = initialSpeed*Math.sin(Math.toRadians(initialAngle));
+                double maximumTime = 2*initialVelocityY/GRAVITATIONAL_CONSTANT;
+                if(maximumTime < positionXArray.size()*0.01) maximumTime = positionXArray.size()*0.01;
+                double maximumHorizontalDistance = 2*initialVelocityX*initialVelocityY/GRAVITATIONAL_CONSTANT;
+                double maximumVerticalDistance = initialVelocityY*initialVelocityY/(2*GRAVITATIONAL_CONSTANT);
+                
+                final double dt = maximumTime/1000;
                 switch(graphSwitch){
                     case GRAPH.xtgraph :
-                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
-                        for(int i=0;i<positionXArray.size();i++){
+                        this.moveTo(referenceLeft,referenceBottom); // 원점
+                        for(int i=0;i<1000;i++){
                             if(i%20>=10){ //dashed line
-                                this.moveTo(MIN_X+(double)i*dt,
-                                            MIN_Y+i*dt*(MAX_Y-MIN_Y)/(MAX_X-MIN_X));
+                                this.moveTo(referenceLeft+(double)i*dt*(referenceRight-referenceLeft)/maximumTime,
+                                            referenceBottom+initialVelocityX*i*dt*(referenceTop-referenceBottom)/maximumHorizontalDistance);
                             }
-                            else this.lineTo(MIN_X+(double)i*dt,
-                                             MIN_Y+i*dt*(MAX_Y-MIN_Y)/(MAX_X-MIN_X));
+                            else this.lineTo(referenceLeft+(double)i*dt*(referenceRight-referenceLeft)/maximumTime,
+                                             referenceBottom+initialVelocityX*i*dt*(referenceTop-referenceBottom)/maximumHorizontalDistance);
                         }
                         break;
                     case GRAPH.ytgraph :
-                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
-                        for(int i=0;i<positionYArray.size();i++)
-                            this.lineTo(MIN_X+(double)i*dt,
-                                        MIN_Y+positionYArray.get(i)*(MAX_Y-MIN_Y)/positionYArray.get(positionYArray.size()/2-1));
+                        this.moveTo(referenceLeft,referenceBottom); // 원점
+                        for(int i=0;i<1000;i++)
+                            if(i%20>=10){ //dashed line
+                                this.moveTo(referenceLeft+(double)i*dt*(referenceRight-referenceLeft)/maximumTime,
+                                            referenceBottom+(initialVelocityY*i*dt-0.5*GRAVITATIONAL_CONSTANT*i*dt*i*dt)*(referenceTop-referenceBottom)/maximumVerticalDistance);
+                            }
+                            else this.lineTo(referenceLeft+(double)i*dt*(referenceRight-referenceLeft)/maximumTime,
+                                            referenceBottom+(initialVelocityY*i*dt-0.5*GRAVITATIONAL_CONSTANT*i*dt*i*dt)*(referenceTop-referenceBottom)/maximumVerticalDistance);
                         break;
                     case GRAPH.vxtgraph :
-                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
-                        for(int i=0;i<velocityXArray.size();i++)
-                            this.lineTo(MIN_X*(double)getWidth()+(double)i*dt,
-                                        MIN_Y+velocityXArray.get(i)*(MAX_Y-MIN_Y)/velocityXArray.get(0));
+                        this.moveTo(referenceLeft,0.3*(double)getHeight()); // y축 위에서 첫 번째 tic
+                        for(int i=0;i<1000;i++)
+                            if(i%20>=10){ //dashed line
+                                this.moveTo(referenceLeft+(double)i*dt*(referenceRight-referenceLeft)/maximumTime,
+                                            0.3*(double)getHeight());
+                            }
+                            else this.lineTo(referenceLeft+(double)i*dt*(referenceRight-referenceLeft)/maximumTime,
+                                             0.3*(double)getHeight());
                         break;
                     case GRAPH.vytgraph :
-                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
-                        for(int i=0;i<velocityYArray.size();i++)
-                            this.lineTo(MIN_X+(double)i*dt,
-                                        MIN_Y+velocityYArray.get(i)*(MAX_Y-MIN_Y)/velocityYArray.get(0));
+                        this.moveTo(referenceLeft,0.3*(double)getHeight()); // y축 위에서 첫 번째 tic
+                        for(int i=0;i<1000;i++)
+                            if(i%20>=10){ //dashed line
+                                this.moveTo(referenceLeft+(double)i*dt*(referenceRight-referenceLeft)/maximumTime,
+                                            0.5*getHeight()-(initialVelocityY-GRAVITATIONAL_CONSTANT*i*dt)/initialVelocityY*0.2*getHeight());
+                            }
+                            else this.lineTo(referenceLeft+(double)i*dt*(referenceRight-referenceLeft)/maximumTime,
+                                             0.5*getHeight()-(initialVelocityY-GRAVITATIONAL_CONSTANT*i*dt)/initialVelocityY*0.2*getHeight());
                         break;
                     }
                 }
@@ -277,36 +315,43 @@ public class Projectile extends javax.swing.JApplet {
         
         private class withFriction extends Path2D.Double{
             public withFriction(){
-                double MIN_X = 0.1*(double)getWidth();
-                double MAX_X = 0.9*(double)getWidth();
-                double MIN_Y = 0.9*(double)getHeight();
-                double MAX_Y = 0.1*(double)getHeight();
+                double referenceLeft = 0.1*(double)getWidth();
+                double referenceRight = 0.9*(double)getWidth();
+                double referenceBottom = 0.9*(double)getHeight();
+                double referenceTop = 0.1*(double)getHeight();
                 
-                final double dt = (MAX_X-MIN_X)/(double)positionXArray.size();
+                double initialVelocityX = initialSpeed*Math.cos(Math.toRadians(initialAngle));
+                double initialVelocityY = initialSpeed*Math.sin(Math.toRadians(initialAngle));
+                double maximumTime = 2*initialVelocityY/GRAVITATIONAL_CONSTANT;
+                if(maximumTime < positionXArray.size()*0.01) maximumTime = positionXArray.size()*0.01;
+                double maximumHorizontalDistance = 2*initialVelocityX*initialVelocityY/GRAVITATIONAL_CONSTANT;
+                double maximumVerticalDistance = initialVelocityY*initialVelocityY/(2*GRAVITATIONAL_CONSTANT);
+                
+                final double dt = 0.01;
                 switch(graphSwitch){
                     case GRAPH.xtgraph :
-                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
+                        this.moveTo(referenceLeft,referenceBottom); // 원점
                         for(int i=0;i<positionXArray.size();i++)
-                            this.lineTo(MIN_X+(double)i*dt,
-                                        MIN_Y+positionXArray.get(i)*(MAX_Y-MIN_Y)/positionXArray.get(positionXArray.size()-1));
+                            this.lineTo(referenceLeft+(double)i*dt*(referenceRight-referenceLeft)/maximumTime,
+                                        referenceBottom+positionXArray.get(i)*(referenceTop-referenceBottom)/maximumHorizontalDistance);
                         break;
                     case GRAPH.ytgraph :
-                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
+                        this.moveTo(referenceLeft,referenceBottom); // 원점
                         for(int i=0;i<positionYArray.size();i++)
-                            this.lineTo(MIN_X+(double)i*dt,
-                                        MIN_Y+positionYArray.get(i)*(MAX_Y-MIN_Y)/positionYArray.get(positionYArray.size()/2-1));
+                            this.lineTo(referenceLeft+(double)i*dt*(referenceRight-referenceLeft)/maximumTime,
+                                        referenceBottom+positionYArray.get(i)*(referenceTop-referenceBottom)/maximumVerticalDistance);
                         break;
                     case GRAPH.vxtgraph :
-                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
+                        this.moveTo(referenceLeft,0.3*(double)getHeight()); // y축 위에서 첫 번째 tic
                         for(int i=0;i<velocityXArray.size();i++)
-                            this.lineTo(MIN_X*(double)getWidth()+(double)i*dt,
-                                        MIN_Y+velocityXArray.get(i)*(MAX_Y-MIN_Y)/velocityXArray.get(0));
+                            this.lineTo(referenceLeft+(double)i*dt*(referenceRight-referenceLeft)/maximumTime,
+                                        referenceBottom-velocityXArray.get(i)*0.6*(double)getHeight()/initialVelocityX);
                         break;
                     case GRAPH.vytgraph :
-                        this.moveTo(0.1*(double)getWidth(),0.9*(double)getHeight()); // 원점
+                        this.moveTo(referenceLeft,0.3*(double)getHeight()); // y축 위에서 첫 번째 tic
                         for(int i=0;i<velocityYArray.size();i++)
-                            this.lineTo(MIN_X+(double)i*dt,
-                                        MIN_Y+velocityYArray.get(i)*(MAX_Y-MIN_Y)/velocityYArray.get(0));
+                            this.lineTo(referenceLeft+(double)i*dt*(referenceRight-referenceLeft)/maximumTime,
+                                        0.5*getHeight()-velocityYArray.get(i)/initialVelocityY*0.2*getHeight());
                         break;
                     }
                 }
@@ -319,8 +364,6 @@ public class Projectile extends javax.swing.JApplet {
             Graphics2D g2 = (Graphics2D)g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
             
-            ArrayList<Double> tempArray = new ArrayList<>();
-            
             // Drawing x-axis and y-axis
             g2.setPaint(Color.black);
             g2.draw(new axis());
@@ -328,45 +371,72 @@ public class Projectile extends javax.swing.JApplet {
             // Axis Label
             switch(graphSwitch){
                     case GRAPH.xtgraph :
-                        g2.drawString("t",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
-                        g2.drawString("x",(int)(0.08*getWidth()),(int)(0.11*getHeight()));
-                        tempArray = positionXArray;
+                        g2.drawString("t(s)",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
+                        g2.drawString("x(m)",(int)(0.08*getWidth()),(int)(0.09*getHeight()));
                         break;
                     case GRAPH.ytgraph :
-                        g2.drawString("t",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
-                        g2.drawString("y",(int)(0.08*getWidth()),(int)(0.11*getHeight()));
-                        tempArray = positionYArray;
+                        g2.drawString("t(s)",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
+                        g2.drawString("y(m)",(int)(0.08*getWidth()),(int)(0.09*getHeight()));
                         break;
                     case GRAPH.vxtgraph :
-                        g2.drawString("t",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
-                        g2.drawString("Vx",(int)(0.07*getWidth()),(int)(0.11*getHeight()));
-                        tempArray = velocityXArray;
+                        g2.drawString("t(s)",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
+                        g2.drawString("Vx(m/s)",(int)(0.07*getWidth()),(int)(0.09*getHeight()));
                         break;
                     case GRAPH.vytgraph :
-                        g2.drawString("t",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
-                        g2.drawString("Vy",(int)(0.07*getWidth()),(int)(0.11*getHeight()));
-                        tempArray = velocityYArray;
+                        g2.drawString("t(s)",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
+                        g2.drawString("Vy(m/s)",(int)(0.07*getWidth()),(int)(0.09*getHeight()));
                         break;    
             }
             
+            ///////////////////////////////////////////////////////////////////
+            // 그래프의 x,y축 상에 숫자 표시
+            ///////////////////////////////////////////////////////////////////
             double dx,dy;
-            int xtic,ytic,i,step;
+            int xtic,ytic;
             String text;
             xtic = (int)(0.06*getHeight());
-            ytic = (int)(0.03*getWidth());
-            dx = 0.8*getWidth()/10.;
-            dy = 0.8*getHeight()/10.;
-            step = 0;
-            for(i=0;i<tempArray.size();i += tempArray.size()/10 + 1){
-                g2.drawString(String.format("%.2f",i*0.01),(int)(0.08*getWidth()+dx*step),(int)(0.9*getHeight()+ xtic));
-                if(step%2==0){
-                    text = String.format("%.2f",tempArray.get(i));
-                    g2.drawString(text,(int)(0.1*getWidth()-ytic-5*text.length()),(int)(0.91*getHeight()-dy*step));
+            ytic = (int)(0.035*getWidth());
+            dx = 0.8*getWidth()/20.;
+            dy = 0.8*getHeight()/20.;
+            
+            double initialVelocityX = initialSpeed*Math.cos(Math.toRadians(initialAngle));
+            double initialVelocityY = initialSpeed*Math.sin(Math.toRadians(initialAngle));
+            double maximumTime = 2*initialVelocityY/GRAVITATIONAL_CONSTANT;
+            if(maximumTime < positionXArray.size()*0.01) maximumTime = positionXArray.size()*0.01;
+            double maximumHorizontalDistance = 2*initialVelocityX*initialVelocityY/GRAVITATIONAL_CONSTANT;
+            double maximumVerticalDistance = initialVelocityY*initialVelocityY/(2*GRAVITATIONAL_CONSTANT);
+            
+            if(graphOnOffSwitch){
+                for(int i=0;i<20;i++){
+                    if(i%2==0){
+                        text = String.format("%.2f",maximumTime/20*(double)i);
+                        g2.drawString(text,(int)(0.08*getWidth()+dx*i),(int)(0.9*getHeight()+ xtic));
+                    }
+                    if(i%5==0 && i!=0){
+                        switch(graphSwitch){
+                            case GRAPH.xtgraph :
+                                text = String.format("%.2f",maximumHorizontalDistance/20*(double)i);
+                                g2.drawString(text,(int)(0.1*getWidth()-ytic-5*text.length()),(int)(0.91*getHeight()-dy*i));
+                                break;
+                            case GRAPH.ytgraph :
+                                text = String.format("%.2f",maximumVerticalDistance/20*(double)i);
+                                g2.drawString(text,(int)(0.1*getWidth()-ytic-5*text.length()),(int)(0.91*getHeight()-dy*i));
+                                break;
+                            case GRAPH.vxtgraph :
+                                text = String.format("%.2f",initialVelocityX/15*(double)i);
+                                g2.drawString(text,(int)(0.1*getWidth()-ytic-5*text.length()),(int)(0.91*getHeight()-dy*i));
+                                break;
+                            case GRAPH.vytgraph :
+                                text = String.format("%.2f",initialVelocityX*(i-10)/5);
+                                g2.drawString(text,(int)(0.1*getWidth()-ytic-5*text.length()),(int)(0.91*getHeight()-dy*i));
+                                break;
+                        }
+                    }
                 }
-                step ++;
             }
-           
-           g2.setPaint(Color.blue);
+            ////////////////////////////////////////////////////////////////////////
+            
+            g2.setPaint(Color.blue);
             g2.draw(new noFriction()); // reference
             
             g2.setPaint(Color.red);
@@ -392,10 +462,7 @@ public class Projectile extends javax.swing.JApplet {
         parameterPanel = new javax.swing.JPanel();
         linearFrictionCheckBox = new javax.swing.JCheckBox();
         quadraticFrictionCheckBox = new javax.swing.JCheckBox();
-        massOfParticleLabel = new javax.swing.JLabel();
-        massOfParticleSlider = new javax.swing.JSlider();
-        massOfParticleInput = new javax.swing.JSpinner();
-        initalAngleLabel = new javax.swing.JLabel();
+        initialAngleLabel = new javax.swing.JLabel();
         initialAngleSlider = new javax.swing.JSlider();
         initialAngleInput = new javax.swing.JSpinner();
         intialSpeedLabel = new javax.swing.JLabel();
@@ -407,7 +474,6 @@ public class Projectile extends javax.swing.JApplet {
         quadraticFrictionSlider = new javax.swing.JSlider();
         pauseButton = new javax.swing.JButton();
         startButton = new javax.swing.JButton();
-        jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         linearFrictionInput = new javax.swing.JTextField();
@@ -469,32 +535,12 @@ public class Projectile extends javax.swing.JApplet {
             }
         });
 
-        massOfParticleLabel.setText("Mass");
-
-        massOfParticleSlider.setMinimum(1);
-
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, massOfParticleInput, org.jdesktop.beansbinding.ELProperty.create("${value}"), massOfParticleSlider, org.jdesktop.beansbinding.BeanProperty.create("value"));
-        bindingGroup.addBinding(binding);
-
-        massOfParticleSlider.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                massOfParticleSliderStateChanged(evt);
-            }
-        });
-
-        massOfParticleInput.setValue(50);
-        massOfParticleInput.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                massOfParticleInputStateChanged(evt);
-            }
-        });
-
-        initalAngleLabel.setText("Intial Angle");
+        initialAngleLabel.setText("Intial Angle");
 
         initialAngleSlider.setMaximum(90);
         initialAngleSlider.setMinimum(1);
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, initialAngleInput, org.jdesktop.beansbinding.ELProperty.create("${value}"), initialAngleSlider, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, initialAngleInput, org.jdesktop.beansbinding.ELProperty.create("${value}"), initialAngleSlider, org.jdesktop.beansbinding.BeanProperty.create("value"));
         bindingGroup.addBinding(binding);
 
         initialAngleSlider.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -553,8 +599,6 @@ public class Projectile extends javax.swing.JApplet {
             }
         });
 
-        jLabel6.setText("(kg)");
-
         jLabel7.setText("(deg)");
 
         jLabel8.setText("(m/s)");
@@ -577,81 +621,63 @@ public class Projectile extends javax.swing.JApplet {
         parameterPanel.setLayout(parameterPanelLayout);
         parameterPanelLayout.setHorizontalGroup(
             parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, parameterPanelLayout.createSequentialGroup()
-                .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(parameterPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(quadraticFrictionSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(parameterPanelLayout.createSequentialGroup()
+            .addGroup(parameterPanelLayout.createSequentialGroup()
+                .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, parameterPanelLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(initialAngleSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(parameterPanelLayout.createSequentialGroup()
                         .addGap(6, 6, 6)
-                        .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(massOfParticleLabel)
-                            .addComponent(initalAngleLabel)
-                            .addComponent(intialSpeedLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(massOfParticleInput, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(initialAngleInput, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(initialSpeedInput, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel8)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addComponent(linearFrictionSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
-                        .addGap(6, 6, 6)
                         .addComponent(initialSpeedSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
+                    .addGroup(parameterPanelLayout.createSequentialGroup()
                         .addGap(6, 6, 6)
-                        .addComponent(startButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(startButton, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
                         .addComponent(pauseButton, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addComponent(massOfParticleSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
+                    .addGroup(parameterPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(initialAngleLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(initialAngleInput, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel7))
+                    .addGroup(parameterPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(intialSpeedLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(initialSpeedInput, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel8))
+                    .addGroup(parameterPanelLayout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(quadraticFrictionSlider, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(linearFrictionSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(parameterPanelLayout.createSequentialGroup()
-                                .addGap(17, 17, 17)
-                                .addComponent(quadraticFrictionLabel))
-                            .addGroup(parameterPanelLayout.createSequentialGroup()
-                                .addGap(14, 14, 14)
-                                .addComponent(linearFrictionLabel)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(linearFrictionInput, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(quadraticFrictionInput, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 29, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
-                        .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(quadraticFrictionCheckBox))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(linearFrictionCheckBox)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, parameterPanelLayout.createSequentialGroup()
+                                        .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(parameterPanelLayout.createSequentialGroup()
+                                                .addGap(11, 11, 11)
+                                                .addComponent(quadraticFrictionLabel))
+                                            .addGroup(parameterPanelLayout.createSequentialGroup()
+                                                .addGap(8, 8, 8)
+                                                .addComponent(linearFrictionLabel)))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(linearFrictionInput, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(quadraticFrictionInput, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(quadraticFrictionCheckBox, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(linearFrictionCheckBox, javax.swing.GroupLayout.Alignment.LEADING))
+                                .addGap(0, 29, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         parameterPanelLayout.setVerticalGroup(
             parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, parameterPanelLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(20, 20, 20)
                 .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(massOfParticleLabel)
-                    .addComponent(massOfParticleInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(massOfParticleSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(initalAngleLabel)
+                    .addComponent(initialAngleLabel)
                     .addComponent(initialAngleInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -663,7 +689,7 @@ public class Projectile extends javax.swing.JApplet {
                     .addComponent(jLabel8))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(initialSpeedSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(50, 50, 50)
                 .addComponent(linearFrictionCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(parameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -691,7 +717,7 @@ public class Projectile extends javax.swing.JApplet {
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 513, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -739,7 +765,7 @@ public class Projectile extends javax.swing.JApplet {
                 .addComponent(vxtGraphButton, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(vytGraphButton, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
         buttonPanelLayout.setVerticalGroup(
             buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -831,14 +857,6 @@ public class Projectile extends javax.swing.JApplet {
         }
     }//GEN-LAST:event_linearFrictionCheckBoxActionPerformed
 
-    private void massOfParticleInputStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_massOfParticleInputStateChanged
-
-    }//GEN-LAST:event_massOfParticleInputStateChanged
-
-    private void massOfParticleSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_massOfParticleSliderStateChanged
-            massOfParticle = massOfParticleSlider.getValue();
-    }//GEN-LAST:event_massOfParticleSliderStateChanged
-
     private void initialAngleSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_initialAngleSliderStateChanged
             initialAngle = initialAngleSlider.getValue();
     }//GEN-LAST:event_initialAngleSliderStateChanged
@@ -857,7 +875,6 @@ public class Projectile extends javax.swing.JApplet {
         velocityXArray = new ArrayList<>();
         velocityYArray = new ArrayList<>();
         
-        particle.mass = massOfParticleSlider.getValue();
         initialAngle = initialAngleSlider.getValue();
         initialSpeed = initialSpeedSlider.getValue();
 
@@ -942,24 +959,28 @@ public class Projectile extends javax.swing.JApplet {
 
     private void xtGraphButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xtGraphButtonActionPerformed
         graphSwitch = GRAPH.xtgraph;
+        graphOnOffSwitch = true;
         graphPanel.removeAll();
         graphPanel.repaint();
     }//GEN-LAST:event_xtGraphButtonActionPerformed
 
     private void ytGraphButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ytGraphButtonActionPerformed
         graphSwitch = GRAPH.ytgraph;
+        graphOnOffSwitch = true;
         graphPanel.removeAll();
         graphPanel.repaint();
     }//GEN-LAST:event_ytGraphButtonActionPerformed
 
     private void vxtGraphButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vxtGraphButtonActionPerformed
         graphSwitch = GRAPH.vxtgraph;
+        graphOnOffSwitch = true;
         graphPanel.removeAll();
         graphPanel.repaint();
     }//GEN-LAST:event_vxtGraphButtonActionPerformed
 
     private void vytGraphButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vytGraphButtonActionPerformed
         graphSwitch = GRAPH.vytgraph;
+        graphOnOffSwitch = true;
         graphPanel.removeAll();
         graphPanel.repaint();
     }//GEN-LAST:event_vytGraphButtonActionPerformed
@@ -968,8 +989,8 @@ public class Projectile extends javax.swing.JApplet {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel buttonPanel;
     private javax.swing.JPanel graphPanel;
-    private javax.swing.JLabel initalAngleLabel;
     private javax.swing.JSpinner initialAngleInput;
+    private javax.swing.JLabel initialAngleLabel;
     private javax.swing.JSlider initialAngleSlider;
     private javax.swing.JSpinner initialSpeedInput;
     private javax.swing.JSlider initialSpeedSlider;
@@ -978,7 +999,6 @@ public class Projectile extends javax.swing.JApplet {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton5;
     private javax.swing.JInternalFrame jInternalFrame1;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JMenu jMenu1;
@@ -990,9 +1010,6 @@ public class Projectile extends javax.swing.JApplet {
     private javax.swing.JLabel linearFrictionLabel;
     private javax.swing.JSlider linearFrictionSlider;
     private javax.swing.JPanel mainPanel;
-    private javax.swing.JSpinner massOfParticleInput;
-    private javax.swing.JLabel massOfParticleLabel;
-    private javax.swing.JSlider massOfParticleSlider;
     private javax.swing.JPanel parameterPanel;
     private javax.swing.JButton pauseButton;
     private javax.swing.JCheckBox quadraticFrictionCheckBox;
