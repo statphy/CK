@@ -426,7 +426,7 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
             }
         });
 
-        jLabel4.setText("Slit Distance");
+        jLabel4.setText("Slit Distance(λ)");
 
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, theDistanceSlider, org.jdesktop.beansbinding.ELProperty.create("${value}"), theDistanceSlits, org.jdesktop.beansbinding.BeanProperty.create("value"));
         bindingGroup.addBinding(binding);
@@ -437,7 +437,7 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
             }
         });
 
-        jLabel1.setText("Slit width");
+        jLabel1.setText("Slit width(λ)");
 
         theButtonGroup.add(theSingleSlitRadioButton);
         theSingleSlitRadioButton.setSelected(true);
@@ -503,7 +503,7 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
             }
         });
 
-        theDistanceSlider.setMaximum(50);
+        theDistanceSlider.setMaximum(150);
 
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, theDistanceSlits, org.jdesktop.beansbinding.ELProperty.create("${value}"), theDistanceSlider, org.jdesktop.beansbinding.BeanProperty.create("value"));
         bindingGroup.addBinding(binding);
@@ -535,7 +535,7 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(theDistanceSlider, javax.swing.GroupLayout.DEFAULT_SIZE, 113, Short.MAX_VALUE)
                                     .addComponent(theWidthSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                         .addGap(8, 8, 8)
@@ -676,8 +676,14 @@ public class YoungDoubleSlit extends javax.swing.JApplet {
 
     private void theDistanceSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_theDistanceSliderStateChanged
         // TODO add your handling code here:
-        slit_distance = (int) theDistanceSlider.getValue();
-        theDistanceSlits.setValue(slit_distance);
+        if ( ! single_mode ) {
+            slit_distance = (int) theDistanceSlider.getValue();
+            theDistanceSlits.setValue(slit_distance);
+        }
+        else {
+            slit_distance = (int) 0;
+            theDistanceSlits.setValue(slit_distance);
+        }
     }//GEN-LAST:event_theDistanceSliderStateChanged
 
     private void theWidthSliderPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_theWidthSliderPropertyChange
