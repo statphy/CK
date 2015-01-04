@@ -316,6 +316,7 @@
             <Component class="javax.swing.JSlider" name="theDistanceSlider">
               <Properties>
                 <Property name="maximum" type="int" value="150"/>
+                <Property name="value" type="int" value="0"/>
               </Properties>
               <BindingProperties>
                 <BindingProperty name="value" source="theDistanceSlits" sourcePath="${value}" target="theDistanceSlider" targetPath="value" updateStrategy="0" immediately="false">
