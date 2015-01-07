@@ -83,7 +83,7 @@ public class ViewPanel extends javax.swing.JPanel {
         image2 = loadImage(flavour2,color_charge);                
         meson = true;
     }
-    public void buildHadron(String flavour1, String flavour2, String flavour3){
+    public void buildBaryon(String flavour1, String flavour2, String flavour3){
         
             Random random = new Random();
             String[] color_charge = new String[3];
@@ -136,12 +136,12 @@ public class ViewPanel extends javax.swing.JPanel {
         }
         else if ( selected_particle == 3 ){
             System.out.println("Proton");
-            buildHadron("u","u","dbar");
+            buildBaryon("u","u","dbar");
             repaint();
         }
         else if ( selected_particle == 4 ){
             System.out.println("Neutron");
-            buildHadron("u","d","d");
+            buildBaryon("u","d","d");
             repaint();
         }
         
