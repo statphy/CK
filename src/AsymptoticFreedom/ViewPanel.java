@@ -6,8 +6,10 @@
 package AsymptoticFreedom;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,6 +21,9 @@ import javax.imageio.ImageIO;
 public class ViewPanel extends javax.swing.JPanel {
     Image image1, image2, image3;
     boolean meson ;
+    ArrayList<Integer> image_x_pos    = new ArrayList<>();
+    ArrayList<Integer> image_y_pos    = new ArrayList<>();
+    final int quark_radius = 50;
     /**
      * Creates new form ViewPanel
      */
@@ -52,6 +57,22 @@ public class ViewPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
+    public int getQuarkSize(){
+        return image_x_pos.size();
+    }
+    public int getQuarkRadius(){
+        return quark_radius;
+    }
+    public double getDR(int quark_idx, int mouse_xpos, int mouse_ypos){
+        double distance_x = image_x_pos.get( quark_idx)-mouse_xpos;
+        double distance_y = image_y_pos.get( quark_idx)-mouse_ypos;
+        return Math.sqrt( distance_x*distance_x + distance_y*distance_y);
+    }
+    public void moveQuarkPosition( int quark_idx, int x_pos, int y_pos){
+        image_x_pos.set(quark_idx,image_x_pos.get(quark_idx)+x_pos);
+        image_y_pos.set(quark_idx,image_y_pos.get(quark_idx)+y_pos);
+    }
+    
     public Image loadImage(String flavour, String color) {
         String image_path = String.format("/AsymptoticFreedom/resource/%s_quark_%s.png",flavour,color);
         Image image = null;
@@ -61,7 +82,7 @@ public class ViewPanel extends javax.swing.JPanel {
             Logger.getLogger(ViewPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
         System.out.println("Load image");        
-        image = image.getScaledInstance(50,50,Image.SCALE_DEFAULT);
+        image = image.getScaledInstance(quark_radius,quark_radius,Image.SCALE_DEFAULT);
         return image;
         
     }
@@ -82,6 +103,16 @@ public class ViewPanel extends javax.swing.JPanel {
         image1 = loadImage(flavour1,color_charge);
         image2 = loadImage(flavour2,color_charge);                
         meson = true;
+        
+        image_x_pos.clear();
+        image_y_pos.clear();        
+        image_x_pos.add( 0, (int)(this.getWidth()/2.0-40));
+        image_x_pos.add( 1, (int)(this.getWidth()/2.0+40));
+        
+        image_y_pos.add( 0, (int)(this.getHeight()/2.0));
+        image_y_pos.add( 1, (int)(this.getHeight()/2.0));
+        
+        
     }
     public void buildBaryon(String flavour1, String flavour2, String flavour3){
         
@@ -115,7 +146,25 @@ public class ViewPanel extends javax.swing.JPanel {
             meson = false;            
             
             System.out.format("Color charge : %s %s %s\n",color_charge[0],color_charge[1], color_charge[2] );
+            
+            image_x_pos.clear();
+            image_y_pos.clear(); 
+            
+            image_x_pos.add( 0, (int)(this.getWidth()/2.0-40));
+            image_x_pos.add( 1, (int)(this.getWidth()/2.0));
+            image_x_pos.add( 2, (int)(this.getWidth()/2.0+40));
+            image_y_pos.add( 0, (int)(this.getHeight()/2.0-40));
+            image_y_pos.add( 1, (int)(this.getHeight()/2.0));
+            image_y_pos.add( 2, (int)(this.getHeight()/2.0-40));
         
+    }
+    public int getStableDistance(){
+        return 100;
+    }
+    public Point getQuarkPos(int quark_idx){
+        Point pos;
+        pos = new Point(image_x_pos.get(quark_idx), image_y_pos.get(quark_idx));
+        return pos;
     }
     
     public void resetPanel(){
@@ -136,7 +185,7 @@ public class ViewPanel extends javax.swing.JPanel {
         }
         else if ( selected_particle == 3 ){
             System.out.println("Proton");
-            buildBaryon("u","u","dbar");
+            buildBaryon("u","u","d");
             repaint();
         }
         else if ( selected_particle == 4 ){
@@ -145,7 +194,6 @@ public class ViewPanel extends javax.swing.JPanel {
             repaint();
         }
         
-        return ;
     }
 
     public void setParticle(int selected_particle) {
@@ -158,9 +206,15 @@ public class ViewPanel extends javax.swing.JPanel {
         System.out.println("Draw paint");
         if ( image1 != null) {
             System.out.println("Draw Real");
-            grphcs.drawImage(image1, 100, 100, this);
-            grphcs.drawImage(image2, 150, 150, this);
-            if ( !meson) grphcs.drawImage(image3, 200, 100, this);            
+            for( int i=0 ; i< image_x_pos.size(); i++){
+                for ( int j=1 ; j< image_x_pos.size(); j++){                    
+                    grphcs.drawLine(image_x_pos.get(i),image_y_pos.get(i),image_x_pos.get(j),image_y_pos.get(j));
+                }
+            }
+            
+            grphcs.drawImage(image1, image_x_pos.get(0)-quark_radius/2 , image_y_pos.get(0)-quark_radius/2, this);
+            grphcs.drawImage(image2, image_x_pos.get(1)-quark_radius/2, image_y_pos.get(1)-quark_radius/2, this);
+            if ( !meson) grphcs.drawImage(image3, image_x_pos.get(2)-quark_radius/2, image_y_pos.get(2)-quark_radius/2, this);            
         }
         
     }

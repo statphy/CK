@@ -55,6 +55,9 @@
           </Border>
         </Property>
       </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new GraphViewPanel(GraphViewPanel.getResultChart())"/>
+      </AuxValues>
 
       <Layout>
         <DimensionLayout dim="0">
@@ -83,10 +86,6 @@
                       </Group>
                       <Group type="102" alignment="1" attributes="0">
                           <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                              <Group type="102" alignment="1" attributes="0">
-                                  <Component id="theStartButton" min="-2" pref="102" max="-2" attributes="0"/>
-                                  <EmptySpace min="25" pref="25" max="-2" attributes="0"/>
-                              </Group>
                               <Component id="theProtonButton" max="32767" attributes="0"/>
                               <Component id="thePionButton" max="32767" attributes="0"/>
                           </Group>
@@ -96,6 +95,12 @@
                               <Component id="theKaonButton" min="-2" pref="79" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace min="-2" pref="76" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" alignment="1" attributes="0">
+                          <Component id="theStartButton" min="-2" pref="102" max="-2" attributes="0"/>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <Component id="theQuitButton" min="-2" pref="102" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="64" max="-2" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -116,8 +121,11 @@
                       <Component id="theNeutronButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="theProtonButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
-                  <Component id="theStartButton" min="-2" pref="44" max="-2" attributes="0"/>
+                  <EmptySpace pref="292" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="theStartButton" alignment="3" min="-2" pref="44" max="-2" attributes="0"/>
+                      <Component id="theQuitButton" alignment="3" min="-2" pref="44" max="-2" attributes="0"/>
+                  </Group>
                   <EmptySpace min="-2" pref="153" max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -179,6 +187,14 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="theStartButtonActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="theQuitButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Quit"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="theQuitButtonActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>

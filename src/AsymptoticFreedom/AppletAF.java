@@ -4,6 +4,12 @@
  * and open the template in the editor.
  */
 package AsymptoticFreedom;
+
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Random;
+
 /**
  *
  * @author Geonmo
@@ -13,6 +19,10 @@ public class AppletAF extends javax.swing.JApplet {
     /**
      * Initializes the applet AppletAF
      */
+    int pre_x_pos;
+    int pre_y_pos;
+    javax.swing.Timer timer ;
+    boolean isTimerOn=false;
     @Override
     public void init() {
         /* Set the Nimbus look and feel */
@@ -43,7 +53,7 @@ public class AppletAF extends javax.swing.JApplet {
         try {
             java.awt.EventQueue.invokeAndWait(new Runnable() {
                 public void run() {
-                    initComponents();
+                    initComponents();                    
                 }
             });
         } catch (Exception ex) {
@@ -61,7 +71,7 @@ public class AppletAF extends javax.swing.JApplet {
     private void initComponents() {
 
         selectedParticle = new javax.swing.ButtonGroup();
-        thePotentialPanel = new javax.swing.JPanel();
+        thePotentialPanel = new GraphViewPanel(GraphViewPanel.getResultChart());
         theOptionPanel = new javax.swing.JPanel();
         theParticleOption = new javax.swing.JLabel();
         theProtonButton = new javax.swing.JRadioButton();
@@ -69,6 +79,7 @@ public class AppletAF extends javax.swing.JApplet {
         theNeutronButton = new javax.swing.JRadioButton();
         theKaonButton = new javax.swing.JRadioButton();
         theStartButton = new javax.swing.JButton();
+        theQuitButton = new javax.swing.JButton();
         theViewPanel = new AsymptoticFreedom.ViewPanel();
 
         setBackground(new java.awt.Color(240, 240, 240));
@@ -127,6 +138,13 @@ public class AppletAF extends javax.swing.JApplet {
             }
         });
 
+        theQuitButton.setText("Quit");
+        theQuitButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                theQuitButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout theOptionPanelLayout = new javax.swing.GroupLayout(theOptionPanel);
         theOptionPanel.setLayout(theOptionPanelLayout);
         theOptionPanelLayout.setHorizontalGroup(
@@ -139,16 +157,18 @@ public class AppletAF extends javax.swing.JApplet {
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(theOptionPanelLayout.createSequentialGroup()
                         .addGroup(theOptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(theOptionPanelLayout.createSequentialGroup()
-                                .addComponent(theStartButton, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(25, 25, 25))
                             .addComponent(theProtonButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(thePionButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(theOptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(theNeutronButton)
                             .addComponent(theKaonButton, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(76, 76, 76))))
+                        .addGap(76, 76, 76))
+                    .addGroup(theOptionPanelLayout.createSequentialGroup()
+                        .addComponent(theStartButton, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(theQuitButton, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(64, 64, 64))))
         );
         theOptionPanelLayout.setVerticalGroup(
             theOptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -163,8 +183,10 @@ public class AppletAF extends javax.swing.JApplet {
                 .addGroup(theOptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(theNeutronButton)
                     .addComponent(theProtonButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(theStartButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 292, Short.MAX_VALUE)
+                .addGroup(theOptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(theStartButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(theQuitButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(153, 153, 153))
         );
 
@@ -235,6 +257,9 @@ public class AppletAF extends javax.swing.JApplet {
 
     private void theStartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_theStartButtonActionPerformed
         // TODO add your handling code here:
+        theStartButton.setText("Restart");                
+        timerStart();
+        
         theViewPanel.resetPanel();
     }//GEN-LAST:event_theStartButtonActionPerformed
 
@@ -246,14 +271,102 @@ public class AppletAF extends javax.swing.JApplet {
 
     private void theViewPanelMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_theViewPanelMouseDragged
         // TODO add your handling code here:
-        System.out.printf("x : %d, y : %d\n",evt.getX(), evt.getY());
+        System.out.printf("Draggred>> x : %d, y : %d\n",evt.getX(), evt.getY());
+        for ( int i= 0; i<theViewPanel.getQuarkSize(); i++){
+            if ( theViewPanel.getDR(i, evt.getX(), evt.getY())<25) {
+                System.out.printf("Selected %d quark!\n",i);
+                theViewPanel.moveQuarkPosition(i, evt.getX()-pre_x_pos, evt.getY()-pre_y_pos);
+                pre_x_pos = evt.getX();
+                pre_y_pos = evt.getY();
+                theViewPanel.repaint();
+            }
+        }   
     }//GEN-LAST:event_theViewPanelMouseDragged
 
     private void theViewPanelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_theViewPanelMousePressed
         // TODO add your handling code here:
-        System.out.printf("x : %d, y : %d\n",evt.getX(), evt.getY());
+        System.out.printf("pressed >> x : %d, y : %d\n",evt.getX(), evt.getY());
+        for ( int i= 0; i<theViewPanel.getQuarkSize(); i++){
+            if ( theViewPanel.getDR(i, evt.getX(), evt.getY())<25) {
+                System.out.printf("Selected %d quark!\n",i);
+                pre_x_pos = evt.getX();
+                pre_y_pos = evt.getY();
+            }
+            
+        }
     }//GEN-LAST:event_theViewPanelMousePressed
 
+    private void theQuitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_theQuitButtonActionPerformed
+        // TODO add your handling code here:
+        setVisible(false);
+        //dispose();
+        System.exit(0);
+    }//GEN-LAST:event_theQuitButtonActionPerformed
+    public void timerStart()
+    {   if ( timer == null ){
+            System.out.println("Start Timer!!");                    
+            timer = new javax.swing.Timer(100,new aListener()); 
+            timer.stop();
+        }
+        timer.start();
+        isTimerOn = true;
+    }
+    public void timerStop()
+    {
+        timer.stop();
+        isTimerOn = false;
+    }
+    public class aListener implements ActionListener 
+    {       
+                public void actionPerformed(ActionEvent e) {
+                    System.out.println("Continue timer!");
+                    if ( isTimerOn ) {
+                        for( int i= 0 ; i < theViewPanel.getQuarkSize(); i++){
+                            for (int j=1 ; j< theViewPanel.getQuarkSize(); j++){
+                                Point q1 = theViewPanel.getQuarkPos(i);
+                                Point q2 = theViewPanel.getQuarkPos(j);
+                                double distance_x = q1.getX()-q2.getX();
+                                double distance_y = q1.getY()-q2.getY();
+                                double dR = Math.sqrt(distance_x*distance_x+distance_y*distance_y);
+                                
+                                if ( dR > theViewPanel.getStableDistance()) {
+                                    int scale = 3;
+                                    theViewPanel.moveQuarkPosition(i,(int)(-distance_x/100)*scale,(int)(-distance_y/100)*scale);
+                                    theViewPanel.moveQuarkPosition(j,(int)(distance_x/100)*scale,(int)(distance_y/100)*scale);                                    
+                                }
+                                else {
+                                      Random random = new Random();  
+                                      int ppp = random.nextInt(2);                                      
+                                      int sel = 4;
+                                      if ( ppp == 0 ) {
+                                          sel = i;
+                                      }
+                                      else sel = j;
+                                      int direction = random.nextInt(9)+1;
+                                      if ( direction % 3 ==0 ) {
+                                          theViewPanel.moveQuarkPosition(sel, 1,0);                                          
+                                      }
+                                      else if ( direction %3 == 1 ) {
+                                          theViewPanel.moveQuarkPosition(sel, -1,0);                                          
+                                      }
+                                      if ( direction > 6) {
+                                          theViewPanel.moveQuarkPosition(sel,0,1);                                          
+                                      }
+                                      else if ( direction <4) {
+                                          theViewPanel.moveQuarkPosition(sel,0,-1);
+                                      }
+                                }
+                            }
+                        }
+                        theViewPanel.repaint();
+                        
+                    }
+                    else {
+                        System.out.println("Already Stop Timer!!");
+                    }
+                }
+            //}
+    };
 
 
     //private ViewPanel theViewPanel;
@@ -266,6 +379,7 @@ public class AppletAF extends javax.swing.JApplet {
     private javax.swing.JRadioButton thePionButton;
     private javax.swing.JPanel thePotentialPanel;
     private javax.swing.JRadioButton theProtonButton;
+    private javax.swing.JButton theQuitButton;
     private javax.swing.JButton theStartButton;
     private AsymptoticFreedom.ViewPanel theViewPanel;
     // End of variables declaration//GEN-END:variables
