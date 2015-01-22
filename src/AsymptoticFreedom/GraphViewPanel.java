@@ -5,11 +5,19 @@
  */
 package AsymptoticFreedom;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYAnnotation;
+import org.jfree.chart.annotations.XYDrawableAnnotation;
+import org.jfree.chart.annotations.XYPointerAnnotation;
+import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.ValueMarker;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -24,15 +32,25 @@ public class GraphViewPanel extends ChartPanel {
     }
     public static JFreeChart getResultChart(){
         // XY시리즈 생성.
-        XYSeries series = new XYSeries("Histogram of light amplitude");            
+        XYSeries series = new XYSeries("Potential of quarks");            
+        XYSeries series2 = new XYSeries("Potential of quarks2");            
         
         series.add(1,1);    
         series.add(10,10);    
         series.add(20,20);    
+        series2.add(3,21);
+        series2.add(15,18);
+        series2.add(20,12);
         // XY시리즈를 Dataset 형태로 변경
-        XYSeriesCollection data = new XYSeriesCollection(series);                  
-        final JFreeChart chart = ChartFactory.createXYLineChart("Amplitude of Light","Angle","Amp.",data,PlotOrientation.VERTICAL,true,true,false);
-        chart.setTitle("Amplitude of light"); // 차트 타이틀
+        XYSeriesCollection data = new XYSeriesCollection();
+        data.addSeries(series);
+        data.addSeries(series2);
+        final JFreeChart chart = ChartFactory.createXYLineChart("Potential","Distance","Potential",data,PlotOrientation.VERTICAL,true,true,false);
+        chart.setTitle("Potential of quarks"); // 차트 타이틀
+        XYPlot plot = (XYPlot)chart.getPlot();
+        plot.addRangeMarker(new ValueMarker(15,Color.RED,new BasicStroke(2.0f)));
+        XYPointerAnnotation pointer = new XYPointerAnnotation("Best bid",10,15,3.0*Math.PI/4.0);
+        plot.addAnnotation(pointer);
         return chart;            
     }
     public void paintComponent(Graphics g2)

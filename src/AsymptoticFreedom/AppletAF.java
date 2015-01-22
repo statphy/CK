@@ -330,9 +330,9 @@ public class AppletAF extends javax.swing.JApplet {
                                 double dR = Math.sqrt(distance_x*distance_x+distance_y*distance_y);
                                 
                                 if ( dR > theViewPanel.getStableDistance()) {
-                                    int scale = 3;
-                                    theViewPanel.moveQuarkPosition(i,(int)(-distance_x/100)*scale,(int)(-distance_y/100)*scale);
-                                    theViewPanel.moveQuarkPosition(j,(int)(distance_x/100)*scale,(int)(distance_y/100)*scale);                                    
+                                    int speed = 3;
+                                    theViewPanel.moveQuarkPosition(i,(int)(-distance_x/100)*speed,(int)(-distance_y/100)*speed);
+                                    theViewPanel.moveQuarkPosition(j,(int)(distance_x/100)*speed,(int)(distance_y/100)*speed);                                    
                                 }
                                 else {
                                       Random random = new Random();  

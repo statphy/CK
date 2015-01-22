@@ -159,7 +159,7 @@ public class ViewPanel extends javax.swing.JPanel {
         
     }
     public int getStableDistance(){
-        return 100;
+        return 80;
     }
     public Point getQuarkPos(int quark_idx){
         Point pos;
@@ -180,7 +180,7 @@ public class ViewPanel extends javax.swing.JPanel {
         }
         else if ( selected_particle == 2 ){
             System.out.println("kaon");
-            buildMeson("u","ubar");
+            buildMeson("u","sbar");
             repaint();
         }
         else if ( selected_particle == 3 ){
