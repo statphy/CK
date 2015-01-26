@@ -19,11 +19,9 @@ import javax.imageio.ImageIO;
  * @author Geonmo
  */
 public class ViewPanel extends javax.swing.JPanel {
-    Image image1, image2, image3;
     boolean meson ;
-    ArrayList<Integer> image_x_pos    = new ArrayList<>();
-    ArrayList<Integer> image_y_pos    = new ArrayList<>();
-    final int quark_radius = 50;
+    static ArrayList<Quark> quark_list = new ArrayList<>();
+    
     /**
      * Creates new form ViewPanel
      */
@@ -57,12 +55,11 @@ public class ViewPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
+    /**
     public int getQuarkSize(){
         return image_x_pos.size();
     }
-    public int getQuarkRadius(){
-        return quark_radius;
-    }
+     
     public double getDR(int quark_idx, int mouse_xpos, int mouse_ypos){
         double distance_x = image_x_pos.get( quark_idx)-mouse_xpos;
         double distance_y = image_y_pos.get( quark_idx)-mouse_ypos;
@@ -72,20 +69,8 @@ public class ViewPanel extends javax.swing.JPanel {
         image_x_pos.set(quark_idx,image_x_pos.get(quark_idx)+x_pos);
         image_y_pos.set(quark_idx,image_y_pos.get(quark_idx)+y_pos);
     }
-    
-    public Image loadImage(String flavour, String color) {
-        String image_path = String.format("/AsymptoticFreedom/resource/%s_quark_%s.png",flavour,color);
-        Image image = null;
-        try {
-            image = ImageIO.read( this.getClass().getResource(image_path));
-            } catch (IOException ex) {
-            Logger.getLogger(ViewPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        System.out.println("Load image");        
-        image = image.getScaledInstance(quark_radius,quark_radius,Image.SCALE_DEFAULT);
-        return image;
-        
-    }
+    */
+
     public void buildMeson(String flavour1, String flavour2){
         Random random = new Random();        
         String color_charge;
@@ -99,19 +84,20 @@ public class ViewPanel extends javax.swing.JPanel {
         else {
             color_charge = "blue";
         }        
-        System.out.format("Color charge : %s\n",color_charge ); 
-        image1 = loadImage(flavour1,color_charge);
-        image2 = loadImage(flavour2,color_charge);                
+        //System.out.format("Color charge : %s\n",color_charge ); 
+        Quark quark1,quark2;
+        quark1 = new Quark(flavour1, color_charge );
+        quark2 = new Quark(flavour2, color_charge );        
         meson = true;
         
-        image_x_pos.clear();
-        image_y_pos.clear();        
-        image_x_pos.add( 0, (int)(this.getWidth()/2.0-40));
-        image_x_pos.add( 1, (int)(this.getWidth()/2.0+40));
-        
-        image_y_pos.add( 0, (int)(this.getHeight()/2.0));
-        image_y_pos.add( 1, (int)(this.getHeight()/2.0));
-        
+        Point q1_pos,q2_pos;
+        q1_pos = new Point((int)(this.getWidth()/2.0-40),(int)(this.getHeight()/2.0));
+        q2_pos = new Point((int)(this.getWidth()/2.0+40),(int)(this.getHeight()/2.0));        
+        quark1.setPos(q1_pos);                
+        quark2.setPos(q2_pos);
+        quark_list.clear();
+        quark_list.add(quark1);
+        quark_list.add(quark2);
         
     }
     public void buildBaryon(String flavour1, String flavour2, String flavour3){
@@ -140,39 +126,28 @@ public class ViewPanel extends javax.swing.JPanel {
             color_charge[index2] ="green";
             color_charge[index3] ="blue";            
             
-            image1 = loadImage(flavour1,color_charge[0]);
-            image2 = loadImage(flavour2,color_charge[1]);
-            image3 = loadImage(flavour3,color_charge[2]);                       
+            Quark quark1,quark2,quark3;
+            quark1 = new Quark(flavour1,color_charge[0]);
+            quark2 = new Quark(flavour2,color_charge[1]);
+            quark3 = new Quark(flavour3,color_charge[2]);            
             meson = false;            
             
-            System.out.format("Color charge : %s %s %s\n",color_charge[0],color_charge[1], color_charge[2] );
+            quark1.setPos((int)(this.getWidth()/2.0-40),(int)(this.getHeight()/2.0-40));
+            quark2.setPos((int)(this.getWidth()/2.0),(int)(this.getHeight()/2.0));
+            quark3.setPos((int)(this.getWidth()/2.0+40),(int)(this.getHeight()/2.0-40));
             
-            image_x_pos.clear();
-            image_y_pos.clear(); 
-            
-            image_x_pos.add( 0, (int)(this.getWidth()/2.0-40));
-            image_x_pos.add( 1, (int)(this.getWidth()/2.0));
-            image_x_pos.add( 2, (int)(this.getWidth()/2.0+40));
-            image_y_pos.add( 0, (int)(this.getHeight()/2.0-40));
-            image_y_pos.add( 1, (int)(this.getHeight()/2.0));
-            image_y_pos.add( 2, (int)(this.getHeight()/2.0-40));
-        
+            quark_list.clear();
+            quark_list.add(quark1);
+            quark_list.add(quark2);
+            quark_list.add(quark3);
     }
-    public int getStableDistance(){
-        return 80;
-    }
-    public Point getQuarkPos(int quark_idx){
-        Point pos;
-        pos = new Point(image_x_pos.get(quark_idx), image_y_pos.get(quark_idx));
-        return pos;
-    }
+
     
     public void resetPanel(){
         // 이미지 정리
-        image1 = null;
-        image2 = null;
-        image3 = null;        
-        
+        System.out.println("Before clear quark_list.");
+        quark_list.clear();
+        System.out.println("clear quark_list.");
         if ( selected_particle == 1 ) {
             System.out.println("pion");
             buildMeson("u","dbar");
@@ -193,31 +168,81 @@ public class ViewPanel extends javax.swing.JPanel {
             buildBaryon("u","d","d");
             repaint();
         }
-        
     }
-
+    
     public void setParticle(int selected_particle) {
         this.selected_particle = selected_particle;
     }    
-
+    
+    public int getQuarkSize(){
+        return quark_list.size();
+    }
+    public Point getPos(int idx){
+        return quark_list.get(idx).pos;
+    }
+    public void nextStep(){
+        for( int i= 0 ; i < getQuarkSize(); i++){
+            for (int j=1 ; j< getQuarkSize(); j++){
+                Quark quark1,quark2;
+                quark1 = quark_list.get(i);
+                quark2 = quark_list.get(j);
+                
+                int distance_x = quark1.pos.x- quark2.pos.x;
+                int distance_y = quark1.pos.y- quark2.pos.y;
+                
+                double potential_x = quark1.calculatePotential(quark2, Math.abs(distance_x));
+                double potential_y = quark1.calculatePotential(quark2, Math.abs(distance_y));                
+                if ( distance_x < 0 ) {
+                    quark1.setMomentumChange(new Point(+1,0));
+                    quark2.setMomentumChange(new Point(-1,0));
+                }
+                else {
+                    quark1.setMomentumChange(new Point(-1,0));
+                    quark2.setMomentumChange(new Point(+1,0));
+                }
+                if ( distance_y < 0) {
+                    quark1.setMomentumChange(new Point(0,+1));
+                    quark2.setMomentumChange(new Point(0,-1));
+                }
+                else {
+                    quark1.setMomentumChange(new Point(0,-1));
+                    quark2.setMomentumChange(new Point(0,+1));
+                }                
+                quark1.translate(quark1.momentum.x,quark1.momentum.y);
+                quark2.translate(quark2.momentum.x,quark2.momentum.y);
+                System.out.println(quark1.momentum);
+                if ( quark1.momentum.distance(new Point(0,0))>10 || quark2.momentum.distance(new Point(0,0))>10 ) {
+                    quark1.friction();
+                    quark2.friction();
+                }                    
+            }
+        }
+    }
+    
+    
+    
     @Override
     protected void paintComponent(Graphics grphcs) {
         super.paintComponent(grphcs); //To change body of generated methods, choose Tools | Templates.
-        System.out.println("Draw paint");
-        if ( image1 != null) {
-            System.out.println("Draw Real");
-            for( int i=0 ; i< image_x_pos.size(); i++){
-                for ( int j=1 ; j< image_x_pos.size(); j++){                    
-                    grphcs.drawLine(image_x_pos.get(i),image_y_pos.get(i),image_x_pos.get(j),image_y_pos.get(j));
-                }
+        //System.out.println("Draw paint");
+        for( int i=0 ; i< quark_list.size(); i++){                
+                for ( int j=i+1 ; j< quark_list.size(); j++){                    
+                    //System.out.println("Draw line");
+                    int ref_x,ref_y,target_x,target_y ;
+                    ref_x = quark_list.get(i).pos.x;
+                    target_x = quark_list.get(j).pos.x;
+                    ref_y = quark_list.get(i).pos.y;
+                    target_y = quark_list.get(j).pos.y;
+                    //System.out.format("%d %d %d %d\n", ref_x, target_x, ref_y, target_y);
+                    grphcs.drawLine(ref_x, ref_y, target_x, target_y);
+                }                
+                Quark quark;
+                quark = quark_list.get(i);
+                grphcs.drawImage(quark.img, quark.pos.x-(int)quark.radius/2,quark.pos.y-(int)quark.radius/2, this);
             }
-            
-            grphcs.drawImage(image1, image_x_pos.get(0)-quark_radius/2 , image_y_pos.get(0)-quark_radius/2, this);
-            grphcs.drawImage(image2, image_x_pos.get(1)-quark_radius/2, image_y_pos.get(1)-quark_radius/2, this);
-            if ( !meson) grphcs.drawImage(image3, image_x_pos.get(2)-quark_radius/2, image_y_pos.get(2)-quark_radius/2, this);            
-        }
-        
     }
+        
+    
     
     
 }
