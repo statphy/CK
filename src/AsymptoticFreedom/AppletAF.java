@@ -350,12 +350,12 @@ public class AppletAF extends javax.swing.JApplet {
     private void TimerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TimerButtonActionPerformed
         // TODO add your handling code here:
         if ( isTimerOn ){
-            isTimerOn = false;
+            timerStop();
             TimerButton.setText("Timer off");
             TimerButton.setSelected(isTimerOn);
         }
         else {
-            isTimerOn = true;
+            timerStart();
             TimerButton.setText("Timer on");
             TimerButton.setSelected(isTimerOn);
         }

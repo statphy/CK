@@ -110,8 +110,8 @@ public class Quark {
         this.momentum.translate(dV.x,dV.y);
     }
     public void friction(){
-        this.momentum.x = this.momentum.x - (int)this.momentum.x/3;
-        this.momentum.y = this.momentum.y - (int)this.momentum.y/3;
+        this.momentum.x = this.momentum.x - (int)this.momentum.x/2;
+        this.momentum.y = this.momentum.y - (int)this.momentum.y/2;
         
     }
     

@@ -182,35 +182,56 @@ public class ViewPanel extends javax.swing.JPanel {
     }
     public void nextStep(){
         for( int i= 0 ; i < getQuarkSize(); i++){
-            for (int j=1 ; j< getQuarkSize(); j++){
+            for (int j=i+1 ; j< getQuarkSize(); j++){
                 Quark quark1,quark2;
                 quark1 = quark_list.get(i);
                 quark2 = quark_list.get(j);
                 
-                int distance_x = quark1.pos.x- quark2.pos.x;
-                int distance_y = quark1.pos.y- quark2.pos.y;
+                int distance_x = quark1.pos.x- quark2.pos.x;                
+                int distance_y = quark1.pos.y- quark2.pos.y;                
+                double angle = Math.atan2(distance_y, distance_x);
+                //System.out.printf("dis_x:%d, dis_y:%d, angle:%f\n",distance_x,distance_y,angle);
                 
-                double potential_x = quark1.calculatePotential(quark2, Math.abs(distance_x));
-                double potential_y = quark1.calculatePotential(quark2, Math.abs(distance_y));                
-                if ( distance_x < 0 ) {
-                    quark1.setMomentumChange(new Point(+1,0));
-                    quark2.setMomentumChange(new Point(-1,0));
-                }
+                Quark quark_lit = new Quark(quark2.flavour,quark2.color);
+                int pos_x,pos_y;
+                if ( distance_x==0) pos_x =quark2.pos.x;
                 else {
-                    quark1.setMomentumChange(new Point(-1,0));
-                    quark2.setMomentumChange(new Point(+1,0));
+                    pos_x = quark2.pos.x - distance_x/Math.abs(distance_x);
                 }
-                if ( distance_y < 0) {
-                    quark1.setMomentumChange(new Point(0,+1));
-                    quark2.setMomentumChange(new Point(0,-1));
-                }
+                if ( distance_y==0) pos_y = quark2.pos.y;
                 else {
-                    quark1.setMomentumChange(new Point(0,-1));
-                    quark2.setMomentumChange(new Point(0,+1));
+                    pos_y = quark2.pos.y - distance_y/Math.abs(distance_y);
                 }                
+                quark_lit.setPos( pos_x , pos_y);
+                                
+                double potential = quark1.calculatePotential(quark2);
+                double next_potential = quark1.calculatePotential(quark_lit);
+                double delta_potential = next_potential-potential;                
+                //System.out.printf("cur_poten : %f, next_poten: %f, delta_poten : %f\n",potential, next_potential,delta_potential);
+                System.out.println(potential);
+                System.out.println(next_potential);
+                System.out.println(delta_potential);
+                
+                int value_x = (int)(delta_potential*Math.cos(angle)/10);
+                int value_y = (int)(delta_potential*Math.sin(angle)/10);
+                
+                
+                
+                quark1.setMomentumChange(new Point(-value_x,0));
+                quark2.setMomentumChange(new Point(+value_x,0));
+                quark1.setMomentumChange(new Point(0,-value_y));
+                quark2.setMomentumChange(new Point(0,+value_y));
+                
+                System.out.println("Pos:");
+                System.out.println(quark1.pos);
+                System.out.println(quark2.pos);
+                
                 quark1.translate(quark1.momentum.x,quark1.momentum.y);
                 quark2.translate(quark2.momentum.x,quark2.momentum.y);
+                System.out.println("momentum");
+                System.out.printf("valuex :%d valuey :%d\n",value_x,value_y);
                 System.out.println(quark1.momentum);
+                System.out.println(quark2.momentum);
                 if ( quark1.momentum.distance(new Point(0,0))>10 || quark2.momentum.distance(new Point(0,0))>10 ) {
                     quark1.friction();
                     quark2.friction();
