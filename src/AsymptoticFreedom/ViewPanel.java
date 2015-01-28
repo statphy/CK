@@ -192,6 +192,7 @@ public class ViewPanel extends javax.swing.JPanel {
                 double angle = Math.atan2(distance_y, distance_x);
                 //System.out.printf("dis_x:%d, dis_y:%d, angle:%f\n",distance_x,distance_y,angle);
                 
+                /**
                 Quark quark_lit = new Quark(quark2.flavour,quark2.color);
                 int pos_x,pos_y;
                 if ( distance_x==0) pos_x =quark2.pos.x;
@@ -203,17 +204,18 @@ public class ViewPanel extends javax.swing.JPanel {
                     pos_y = quark2.pos.y - distance_y/Math.abs(distance_y);
                 }                
                 quark_lit.setPos( pos_x , pos_y);
-                                
+                */                
+                double distance = quark1.pos.distance(quark2.pos)+0.1;
                 double potential = quark1.calculatePotential(quark2);
-                double next_potential = quark1.calculatePotential(quark_lit);
+                double next_potential = quark1.calculatePotential(quark2,distance);
                 double delta_potential = next_potential-potential;                
                 //System.out.printf("cur_poten : %f, next_poten: %f, delta_poten : %f\n",potential, next_potential,delta_potential);
                 System.out.println(potential);
                 System.out.println(next_potential);
                 System.out.println(delta_potential);
                 
-                int value_x = (int)(delta_potential*Math.cos(angle)/10);
-                int value_y = (int)(delta_potential*Math.sin(angle)/10);
+                int value_x = (int)(delta_potential*Math.cos(angle));
+                int value_y = (int)(delta_potential*Math.sin(angle));
                 
                 
                 
