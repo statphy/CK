@@ -95,7 +95,7 @@ public class LogisticMap extends javax.swing.JApplet {
             g2.drawString("Logistic Map : x(n+1) = r x(n) [1 - x(n)]",15,20);
             
             g2.drawString("r",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
-            g2.drawString("x",(int)(0.08*getWidth()),(int)(0.09*getHeight()));
+            g2.drawString("x*",(int)(0.08*getWidth()),(int)(0.09*getHeight()));
             
         }
     }
