@@ -6,6 +6,7 @@
 package LogisticMap;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -20,16 +21,51 @@ import java.util.ArrayList;
  * @author Hyun-Myung Chun
  */
 
+class Dynamics{
+    
+    int sample = 100000;
+    int iteration = 1000;
+    
+    // parameterX[0][i] : x, parameter[1][i] : r;
+    double parameterX[][] = new double[2][sample];
+    
+    public void Initialization(double minR, double maxR){        
+        for(int i=0;i<sample;i++){
+            parameterX[0][i] = Math.random();
+            parameterX[1][i] = (maxR-minR)*Math.random()+minR;
+        }
+    }    
+    
+    public void Iteration(){
+        for(int i=0;i<sample;i++){
+            double x = parameterX[0][i];
+            double r = parameterX[1][i];
+            for(int j=0;j<iteration;j++){
+                x = r*x*(1-x);
+            }
+            parameterX[0][i] = x;
+        }
+    }
+}
+
 public class LogisticMap extends javax.swing.JApplet {
         
-    double minR=3;
-    double maxR=4;
+    double minR=2.8;
+    double maxR=3.8;
+    Dynamics dynamics;
+    javax.swing.Timer timer;
+    
+    boolean graphOnOffSwitch = false;
     
     public void init() {
         try {
             java.awt.EventQueue.invokeAndWait(new Runnable() {
                 public void run() {
+                    timer = new javax.swing.Timer(1,new aListener());
+                    timer.stop();
+                    
                     initComponents(); 
+                    dynamics = new Dynamics();
                 }
             });
         } catch (Exception ex) {
@@ -71,6 +107,7 @@ public class LogisticMap extends javax.swing.JApplet {
                     if(i%2==0){
                         this.moveTo(referenceLeft+dx*i,referenceBottom-tic);
                         this.lineTo(referenceLeft+dx*i,referenceBottom+tic); // x축 tic (하단)
+                        
                     }
                     if(i%5==0){
                         this.moveTo(referenceLeft-tic,referenceBottom-dy*i);
@@ -89,14 +126,49 @@ public class LogisticMap extends javax.swing.JApplet {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
             
             // Drawing x-axis and y-axis
+            double referenceLeft = 0.1*(double)getWidth();
+            double referenceRight = 0.9*(double)getWidth();
+            double referenceBottom = 0.9*(double)getHeight();
+            double referenceTop = 0.1*(double)getHeight();
+            
             g2.setPaint(Color.black);
             g2.draw(new axis());
+            
+            int tic = (int)(referenceTop/6);
+            double dx = 0.8*getWidth()/20.;
+            double dy = 0.8*getHeight()/20.;
+            String text;
+            for(int i=0;i<=20;i++){
+                    if(i%2==0){
+                        text = String.format("%.3f",minR+(maxR-minR)/20*(double)i);
+                        g2.drawString(text,(int)(referenceLeft+dx*i-4*text.length()),(int)(1.1*referenceBottom-tic));
+                    }
+                    if(i%5==0){
+                        text = String.format("%.3f",1./20*(double)i);
+                        g2.drawString(text,(int)(referenceLeft-tic-8*text.length()),(int)(1.01*referenceBottom-dy*i));
+                    }
+            }
             g2.setFont(new java.awt.Font("Times New Roman",0,18));
             g2.drawString("Logistic Map : x(n+1) = r x(n) [1 - x(n)]",15,20);
             
+            g2.setFont(new Font("TimesRoman",Font.ITALIC,18) );
             g2.drawString("r",(int)(0.91*getWidth()),(int)(0.91*getHeight()));
-            g2.drawString("x*",(int)(0.08*getWidth()),(int)(0.09*getHeight()));
+            g2.drawString("x*",(int)(0.1*getWidth()),(int)(0.09*getHeight()));
             
+            dynamics.Initialization(minR,maxR);
+            dynamics.Iteration();
+            
+            if(graphOnOffSwitch){
+                int positionX,positionR;
+                int width=(int)(referenceRight-referenceLeft);
+                int height=(int)(referenceTop-referenceBottom);
+                int radius=1;
+                for(int i=0;i<dynamics.sample;i++){
+                    positionX=(int)referenceBottom+(int)(height*dynamics.parameterX[0][i])-radius/2;
+                    positionR=(int)referenceLeft+(int)(width*(dynamics.parameterX[1][i]-minR)/(maxR-minR))-radius/2;
+                    g2.fillOval(positionR,positionX,radius,radius);
+                }
+            }
         }
     }
     
@@ -180,7 +252,7 @@ public class LogisticMap extends javax.swing.JApplet {
 
         jLabel1.setText("Range of r :");
 
-        minr.setText("3");
+        minr.setText("2.8");
         minr.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 minrActionPerformed(evt);
@@ -189,7 +261,7 @@ public class LogisticMap extends javax.swing.JApplet {
 
         jLabel2.setText("~");
 
-        maxr.setText("4");
+        maxr.setText("3.8");
         maxr.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 maxrActionPerformed(evt);
@@ -197,11 +269,11 @@ public class LogisticMap extends javax.swing.JApplet {
         });
 
         String str=minr.getText();
-        minrText.setText("3");
+        minrText.setText("2.8");
 
         jLabel3.setText("~");
 
-        maxrText.setText("4");
+        maxrText.setText("3.8");
 
         javax.swing.GroupLayout controlPanelLayout = new javax.swing.GroupLayout(controlPanel);
         controlPanel.setLayout(controlPanelLayout);
@@ -305,8 +377,8 @@ public class LogisticMap extends javax.swing.JApplet {
             minr.setText(str);
         }
         catch(java.lang.NumberFormatException e){// 문자 Input 에러 처리
-                minr.setText("3");
-                maxr.setText("4");
+                minr.setText("2.8");
+                maxr.setText("3.8");
         }
         minrText.setText(minr.getText());
         maxrText.setText(maxr.getText());
@@ -317,15 +389,15 @@ public class LogisticMap extends javax.swing.JApplet {
             maxR = Double.parseDouble(maxr.getText());
         }
         catch(java.lang.NumberFormatException e){// 문자 Input 에러 처리
-                minr.setText("3");
-                maxr.setText("4");
+                minr.setText("2.8");
+                maxr.setText("3.8");
         }
         minrText.setText(minr.getText());
         maxrText.setText(maxr.getText());
     }//GEN-LAST:event_maxrActionPerformed
 
     private void drawButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_drawButtonActionPerformed
-        drawButton.setText("Clear");
+        graphOnOffSwitch = true;
         mainPanel.removeAll();
         mainPanel.repaint();
     }//GEN-LAST:event_drawButtonActionPerformed
